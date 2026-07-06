@@ -2,7 +2,16 @@
 name = "libjuno"
 version = "0.1.0"
 edition = "2024"
-
+license-file = "./LICENSE"
+description = "Library for JunoLang"
+homepage = "https://github.com/L0rdCycl0p/JunoLang"
+repository = "https://github.com/L0rdCycl0p/JunoLang"
+readme = "./README.md"
+keywords = ["language", "junolang", "juno", "programming-language"]
+include = [
+    "**/*.rs",
+    "**/*.pest"
+]
 [dependencies]
 inkwell = { version = "0.9.0", features = ["llvm22-1"] }
 llvm-sys = "221.0.1"

@@ -2,7 +2,16 @@
 name = "junocc"
 version = "0.1.0"
 edition = "2024"
-
+license-file = "./LICENSE"
+description = "Compiler for juno lang"
+homepage = "https://github.com/L0rdCycl0p/JunoLang"
+repository = "https://github.com/L0rdCycl0p/JunoLang"
+readme = "./README.md"
+keywords = ["language", "junolang", "juno", "programming-language", "compiler"]
+include = [
+    "**/*.rs",
+    "**/*.pest"
+]
 [dependencies]
 clap = { version = "4.6.1", features = ["derive"] }
-libjuno = { path = "../libjuno" }
+libjuno = { version = "0.1.0" }
