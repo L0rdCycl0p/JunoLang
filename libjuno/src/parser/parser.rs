@@ -389,7 +389,7 @@ fn parse_assign_stmt(pair: Pair<Rule>) -> Stmt {
     let name = clean_ident(inner.next().unwrap().as_str());
     let value = parse_expr(inner.next().expect("ERROR"));
 
-    Stmt::AssingStmt(AssingStmt {
+    Stmt::AssignStmt(AssignStmt {
         name,
         value,
     })

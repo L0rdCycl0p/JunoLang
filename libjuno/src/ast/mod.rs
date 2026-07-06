@@ -37,7 +37,7 @@ pub struct Block {
 #[derive(Debug, Clone)]
 pub enum Stmt {
     Let(LetStmt),
-    AssingStmt(AssingStmt),
+    AssignStmt(AssignStmt),
     Expr(Expr),
     Return(Option<Expr>),
     Break,
@@ -57,7 +57,7 @@ pub struct LetStmt {
 }
 
 #[derive(Debug, Clone)]
-pub struct AssingStmt {
+pub struct AssignStmt {
     pub name: String,
     pub value: Expr,
 }

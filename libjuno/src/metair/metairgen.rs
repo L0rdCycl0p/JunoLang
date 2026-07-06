@@ -170,7 +170,7 @@ impl<'a> MetaIRGen<'a> {
         match s {
             Stmt::Let(l) => self.lower_let(l),
 
-            Stmt::AssingStmt(e) =>
+            Stmt::AssignStmt(e) =>
                 MetaStmt::Assign {
                     target: self.intern_symbol(&e.name),
                     value: self.lower_expr(&e.value),
