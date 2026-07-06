@@ -1,9 +1,7 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::Path;
 
-use libjuno::inkwell::execution_engine::ExecutionEngine;
 use libjuno::{ compile_file, inkwell::module::Module };
-use libjuno::inkwell::OptimizationLevel;
 use clap::Parser;
 
 mod optimizer;
