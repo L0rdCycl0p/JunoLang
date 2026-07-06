@@ -27,7 +27,12 @@ fn main() -> i32 {
     return 0;
 }
 ```
+## Installing
+Install `junocc`
 
+```bash
+cargo install junocc
+```
 ## Building
 
 Clone the repository:
