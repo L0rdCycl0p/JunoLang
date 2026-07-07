@@ -1,4 +1,4 @@
-use pest::iterators::{ Pair, Pairs };
+use pest::iterators::Pair;
 
 use crate::*;
 use crate::ast::*;
@@ -241,7 +241,7 @@ fn parse_let(pair: JunoPair) -> Stmt {
     let mut inner = pair.into_inner();
     let possible_mutable_pair = inner.next().unwrap();
     let mutable = possible_mutable_pair.as_str() == "mut";
-    let mut name: String;
+    let name: String;
     if !mutable {
         name = clean_ident(possible_mutable_pair.as_str());
     } else {

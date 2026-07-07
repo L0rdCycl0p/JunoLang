@@ -1,4 +1,3 @@
-use inkwell::types::BasicTypeEnum::PointerType;
 use inkwell::values::FunctionValue;
 use inkwell::types::BasicType;
 use crate::metair::*;
@@ -127,7 +126,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         &mut self,
         namespace: u16,
         id: u16
-    ) -> Result<FunctionValue, LLVMError> {
+    ) -> Result<FunctionValue<'_>, LLVMError> {
         let id = ((namespace as u32) << 16) | (id as u32);
         if let Some(f) = self.functions.get(&id) {
             return Ok(*f);

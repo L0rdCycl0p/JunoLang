@@ -1,8 +1,7 @@
-use inkwell::{module::Linkage, types::BasicTypeEnum};
+use inkwell::types::BasicTypeEnum;
 use inkwell::types::FunctionType;
-use inkwell::AddressSpace;
 
-use std::{ collections::HashMap, hash::Hash };
+use std::collections::HashMap;
 
 use inkwell::{
     basic_block::BasicBlock,

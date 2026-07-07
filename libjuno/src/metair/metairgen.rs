@@ -400,7 +400,7 @@ impl<'a> MetaIRGen<'a> {
                             None => {todo!()},
                             Some(b) => {
                                 match &b.declare {
-                                    builtin_registry::BuiltinEnum::Function { param_types, return_type } => {
+                                    builtin_registry::BuiltinEnum::Function { param_types: _, return_type } => {
                                         self.lower_type(&Type::Named(return_type.to_string()))
                                     }
                                     _ => panic!("Function not declared: {}", target_name)
@@ -532,7 +532,7 @@ impl<'a> MetaIRGen<'a> {
                 }
             }
 
-            Type::Generic { base, args } => { MetaType::Named(self.intern_symbol(base)) }
+            Type::Generic { base, args: _ } => { MetaType::Named(self.intern_symbol(base)) }
         }
     }
 

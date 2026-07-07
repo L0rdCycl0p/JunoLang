@@ -1,6 +1,4 @@
 use libjuno::inkwell::{
-    targets::{ InitializationConfig, Target, TargetMachine, RelocMode, CodeModel },
-    OptimizationLevel,
     passes::PassBuilderOptions,
     module::Module
     

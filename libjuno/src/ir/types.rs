@@ -1,5 +1,4 @@
-use inkwell::types::{ AnyTypeEnum, ArrayType, BasicType };
-use inkwell::types::VectorType;
+use inkwell::types::BasicType;
 use crate::metair::*;
 
 use super::*;

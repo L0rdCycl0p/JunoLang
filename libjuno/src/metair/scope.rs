@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use super::*;
-use crate::{ast::{Function, Item, Program}, *};
 impl<'a> MetaIRGen<'a> {
     pub fn push_scope(&mut self) {
         self.locals.push(HashMap::new());
