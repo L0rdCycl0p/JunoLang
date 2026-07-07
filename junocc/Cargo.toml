@@ -4,7 +4,7 @@ include = [
     "**/*.rs",
     "**/*.pest"
 ]
-
+description = "Compiler for JunoLang"
 version.workspace = true
 edition.workspace = true
 license-file.workspace = true
