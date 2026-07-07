@@ -1,6 +1,6 @@
 use inkwell::{
     types::{ AsTypeRef, BasicTypeEnum },
-    values::{ ArrayValue, AsValueRef, BasicValueEnum },
+    values::{ ArrayValue, AsValueRef, BasicValueEnum, PointerValue },
 };
 
 use crate::metair::*;
@@ -89,7 +89,19 @@ impl<'ctx> LLVMBackend<'ctx> {
                         .map_err(|e| LLVMError::Message(e.to_string()))?
                 )
             }
+            MetaExprKind::StructInit { name, fields } => {
+                let s = self.get_struct(&[*name])?;
+                let s_ptr = self.builder.build_alloca(s, "tmp").unwrap();
 
+                for (idx, expr) in fields {
+                    let gep = self.builder.build_struct_gep(s, s_ptr, *idx, "field").unwrap();
+                    let value = self.lower_expr(expr)?;
+                    self.builder.build_store(gep, value).unwrap();
+                }
+
+                let value = self.builder.build_load(s, s_ptr, "tmp").unwrap();
+                Ok(value)
+            }
             MetaExprKind::Void => Err(LLVMError::Message("void expression used as value".into())),
 
             other => Err(LLVMError::Message(format!("expression not implemented: {:#?}", other))),

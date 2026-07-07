@@ -437,8 +437,8 @@ fn parse_struct_init(pair: JunoPair) -> Expr {
     let name = clean_ident(inner.next().unwrap().as_str());
 
     let mut fields = vec![];
-
-    for f in inner {
+    let field_pairs = inner.next().unwrap();
+    for f in field_pairs.into_inner() {
         let mut i = f.into_inner();
         let name = clean_ident(i.next().unwrap().as_str());
         let value = parse_expr(i.next().unwrap());
@@ -504,8 +504,8 @@ fn parse_struct(pair: JunoPair) -> StructDef {
     let name = clean_ident(inner.next().unwrap().as_str());
 
     let mut fields = vec![];
-
-    for f in inner {
+    let fields_pairs = inner.next().unwrap();
+    for f in fields_pairs.into_inner() {
         let mut i = f.into_inner();
         let name = clean_ident(i.next().unwrap().as_str());
         let ty = parse_type(i.next().unwrap());

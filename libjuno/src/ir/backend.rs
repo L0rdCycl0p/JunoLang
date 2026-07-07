@@ -1,5 +1,7 @@
 use inkwell::types::BasicTypeEnum;
 use inkwell::types::FunctionType;
+use inkwell::types::StructType;
+use inkwell::values::StructValue;
 
 use std::collections::HashMap;
 
@@ -31,11 +33,14 @@ pub struct LLVMBackend<'ctx> {
 
     pub program: &'ctx MetaProgram,
 
-    pub functions: HashMap<u32, FunctionValue<'ctx>>,
+    pub functions: HashMap<FunctionId, FunctionValue<'ctx>>,
 
+    pub structs: HashMap<TypeId, StructType<'ctx>>,
     pub scopes: Vec<Scope<'ctx>>,
 
     pub current_function: Option<FunctionValue<'ctx>>,
+
+    pub current_struct: Option<StructType<'ctx>>,
 
     pub loop_stack: Vec<LoopFrame<'ctx>>,
 
@@ -54,12 +59,14 @@ impl<'ctx> LLVMBackend<'ctx> {
             program,
 
             functions: HashMap::new(),
+            structs: HashMap::new(),
             builtins: HashMap::new(),
             scopes: Vec::new(),
 
             loop_stack: Vec::new(),
 
             current_function: None,
+            current_struct: None
         };
         s.declare_builtins();
         s
@@ -67,7 +74,6 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub fn dump_ir(&self) {
         self.module.print_to_stderr();
     }
-
 
     pub fn compile(&mut self) -> Result<Module<'ctx>, LLVMError> {
         self.lower_program()?;

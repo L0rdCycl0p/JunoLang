@@ -16,9 +16,10 @@ pub fn compile_file(p: &Path) -> Module<'static> {
             panic!("{e}");
         }
     };
-    let expr = parse_program(pairs.into_iter().next().unwrap());
-    let mut metairgen = MetaIRGen::new(&expr);
-    let metair = Box::leak(Box::new(metairgen.lower_program(&expr)));
+    let expr_owned = parse_program(pairs.into_iter().next().unwrap());
+    let expr = Box::leak(Box::new(expr_owned));
+    let metairgen = Box::leak(Box::new(MetaIRGen::new(expr)));
+    let metair = Box::leak(Box::new(metairgen.lower_program(expr)));
     let context = Box::leak(Box::new(inkwell::context::Context::create()));
     let mut irgen = LLVMBackend::new(context, metair, "main");
     if let Err(e) = irgen.compile() {

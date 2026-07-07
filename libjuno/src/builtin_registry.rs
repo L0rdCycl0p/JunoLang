@@ -2,7 +2,7 @@ use phf_macros::phf_map;
 use crate::{ ast::Type, * };
 
 pub struct Builtin {
-    pub id: u32,
+    pub id: SymbolId,
     pub declare: BuiltinEnum,
 }
 
@@ -62,7 +62,7 @@ pub fn is_builtin(name: &str) -> bool {
     REGISTRY.contains_key(name)
 }
 
-pub fn get_builtin_id(name: &str) -> u32 {
+pub fn get_builtin_id(name: &str) -> SymbolId {
     ((1 as u32) << 16) | REGISTRY.get(name).unwrap().id
 }
 

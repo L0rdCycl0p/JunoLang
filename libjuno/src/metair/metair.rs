@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 // =======================
 // IDs
@@ -22,7 +22,7 @@ pub struct MetaStruct {
 
 #[derive(Debug, Clone)]
 pub struct MetaField {
-    pub name: SymbolId,
+    pub index: u32,
     pub ty: MetaType,
 }
 
@@ -30,6 +30,7 @@ pub struct MetaField {
 pub struct MetaProgram {
     pub functions: Vec<MetaFunction>,
     pub structs: Vec<MetaStruct>,
+    pub struct_fields: HashMap<SymbolId, Vec<String>>,
     pub string_table: Vec<String>,
     pub symbol_table: Vec<String>,
 }
@@ -102,7 +103,7 @@ pub struct MetaExpr {
 pub enum MetaExprKind {
     Const(MetaConst),
 
-    Var (SymbolId),
+    Var(SymbolId),
 
     String(StringId),
 
@@ -195,7 +196,7 @@ pub enum MetaType {
         size: u32,
     },
 
-    Unit
+    Unit,
 }
 
 // =======================

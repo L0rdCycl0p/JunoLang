@@ -6,7 +6,7 @@ use super::*;
 use inkwell::types::BasicTypeEnum;
 
 impl<'ctx> LLVMBackend<'ctx> {
-    pub fn lower_type(&self, ty: &MetaType) -> Result<BasicTypeEnum<'ctx>, LLVMError> {
+    pub fn lower_type(&mut self, ty: &MetaType) -> Result<BasicTypeEnum<'ctx>, LLVMError> {
         match ty {
             MetaType::Pointer(inner) => {
                 Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into()) // TODO ptr_type is deprecated, searching for alternative
@@ -38,8 +38,14 @@ impl<'ctx> LLVMBackend<'ctx> {
                     "f64" => Ok(self.context.f64_type().into()),
 
                     _ => {
-                        if self.program.get_struct(*id).is_some() {
-                            todo!("LLVM struct lowering");
+                        if self.program.structs.get(*id as usize).is_some() {
+                            if self.structs.get(id).is_none(){
+                                self.lower_struct(&self.program.structs[*id as usize])?;
+                            }
+                            return match self.get_struct(vec![*id].as_slice()) {
+                                Err(e) => Err(e),
+                                Ok(s) => Ok(s.into())
+                            };
                         }
                         Err(LLVMError::UnknownType(*id))
                     }
