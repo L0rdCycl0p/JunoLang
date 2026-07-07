@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::hash::Hash;
 
 use crate::{ ast::*, builtin_registry, get_builtin_id, is_builtin };
 use crate::metair::metair::*;
@@ -8,17 +9,20 @@ use crate::metair::metair::*;
 // =======================
 
 pub struct MetaIRGen<'a> {
-    program: &'a Program,
-    pub(in crate::metair) symbols: HashMap<String, SymbolId>,
-    pub(in crate::metair) strings: HashMap<String, StringId>,
+    pub program: &'a Program,
+    pub symbols: HashMap<String, SymbolId>,
+    pub struct_fields: HashMap<SymbolId, HashMap<String, u32>>, // struct_id => {field_name1 => field_id1, ...}
+    pub strings: HashMap<String, StringId>,
 
-    pub(in crate::metair) symbol_list: Vec<String>,
-    pub(in crate::metair) string_list: Vec<String>,
-    pub(crate) locals: Vec<HashMap<SymbolId, MetaType>>,
+    pub symbol_list: Vec<String>,
+    pub string_list: Vec<String>,
+    pub locals: Vec<HashMap<SymbolId, MetaType>>,
     next_symbol: u32,
     next_string: u32,
     next_func: u32,
     next_type: u32,
+    next_struct_field: u32,
+    counter: u32
 }
 
 impl MetaProgram {
@@ -33,6 +37,7 @@ impl<'a> MetaIRGen<'a> {
             program: p,
             locals: Vec::new(),
             symbols: HashMap::new(),
+            struct_fields: HashMap::new(),
             strings: HashMap::new(),
             symbol_list: vec![],
             string_list: vec![],
@@ -40,6 +45,8 @@ impl<'a> MetaIRGen<'a> {
             next_string: 0,
             next_func: 0,
             next_type: 0,
+            next_struct_field: 0,
+            counter: 0,
         }
     }
 
@@ -63,7 +70,22 @@ impl<'a> MetaIRGen<'a> {
 
         id
     }
+    fn intern_struct_field(&mut self, struct_id: SymbolId, field_name: &str) -> u32 {
+        if let Some(fields) = self.struct_fields.get(&struct_id) {
+            if let Some(id) = fields.get(field_name) {
+                return *id;
+            }
+        } else {
+            self.struct_fields.insert(struct_id, HashMap::new());
+        }
+        let id = self.next_struct_field;
+        self.next_struct_field += 1;
 
+        let fields = &mut self.struct_fields.get_mut(&struct_id).unwrap();
+        fields.insert(field_name.to_string(), id);
+
+        id
+    }
     fn intern_string(&mut self, s: &str) -> StringId {
         if let Some(id) = self.strings.get(s) {
             return *id;
@@ -77,7 +99,14 @@ impl<'a> MetaIRGen<'a> {
 
         id
     }
-
+    fn counter(&mut self) -> u32 {
+        let c = self.counter;
+        self.counter+=1;
+        c
+    }
+    fn reset_counter(&mut self) {
+        self.counter = 0;
+    }
     // =======================
     // Entry Point
     // =======================
@@ -100,12 +129,23 @@ impl<'a> MetaIRGen<'a> {
                 Item::Import(_) => {}
             }
         }
+        let struct_fields: HashMap<SymbolId, Vec<String>> = HashMap::from_iter(self.struct_fields.clone()
+            .into_iter()
+            .map(|(struct_id, fields)| (
+                struct_id,
+                fields
+                    .clone()
+                    .into_iter()
+                    .map(|(key, _)| key)
+                    .collect(),
+            )));
 
         MetaProgram {
             functions,
             structs,
             string_table: self.string_list.clone(),
             symbol_table: self.symbol_list.clone(),
+            struct_fields: struct_fields,
         }
     }
 
@@ -278,19 +318,21 @@ impl<'a> MetaIRGen<'a> {
         let id = self.next_type;
         self.next_type += 1;
 
-        MetaStruct {
+        let s = MetaStruct {
             id,
             name: self.intern_symbol(&s.name),
             fields: s.fields
                 .iter()
                 .map(|f| {
                     MetaField {
-                        name: self.intern_symbol(&f.name),
+                        index: self.intern_struct_field(id, &f.name),
                         ty: self.lower_type(&f.ty),
                     }
                 })
                 .collect(),
-        }
+        };
+        self.next_struct_field = 0;
+        s
     }
     // =======================
     // Expressions
@@ -358,9 +400,9 @@ impl<'a> MetaIRGen<'a> {
             Expr::StructInit(s) => {
                 let fields = s.fields
                     .iter()
-                    .map(|f| { (self.intern_symbol(&f.name), self.lower_expr(&f.value)) })
+                    .map(|f| { (self.counter(), self.lower_expr(&f.value)) })
                     .collect();
-
+                self.reset_counter();
                 let ty = MetaType::Named(self.intern_symbol(&s.name));
 
                 MetaExpr {
@@ -397,10 +439,13 @@ impl<'a> MetaIRGen<'a> {
                     None => {
                         let builtin = builtin_registry::get_builtin(target_name);
                         match builtin {
-                            None => {todo!()},
+                            None => { todo!() }
                             Some(b) => {
                                 match &b.declare {
-                                    builtin_registry::BuiltinEnum::Function { param_types: _, return_type } => {
+                                    builtin_registry::BuiltinEnum::Function {
+                                        param_types: _,
+                                        return_type,
+                                    } => {
                                         self.lower_type(&Type::Named(return_type.to_string()))
                                     }
                                     //_ => panic!("Function not declared: {}", target_name) // unreachable
@@ -408,10 +453,9 @@ impl<'a> MetaIRGen<'a> {
                             }
                         }
                     }
-                    Some(f) => self.lower_type(&f.return_type.as_ref().unwrap())
+                    Some(f) => self.lower_type(&f.return_type.as_ref().unwrap()),
                 };
 
-                
                 MetaExpr {
                     kind: MetaExprKind::Call {
                         target,

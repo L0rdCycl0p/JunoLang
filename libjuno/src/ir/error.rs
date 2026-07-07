@@ -1,8 +1,8 @@
 use std::fmt;
-
+use crate::*;
 #[derive(Debug)]
 pub enum LLVMError {
-    UnknownVariable(u32),
+    UnknownVariable(SymbolId),
     UnknownFunction(u32),
     UnknownType(u32),
 

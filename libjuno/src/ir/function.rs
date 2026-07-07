@@ -61,9 +61,10 @@ impl<'ctx> LLVMBackend<'ctx> {
 
             llvm_param.set_name(&self.program.symbol_table[param.name as usize]);
 
+            let llvm_type = self.lower_type(&param.ty)?;
             let ptr = self.builder
                 .build_alloca(
-                    self.lower_type(&param.ty)?,
+                    llvm_type,
                     &self.program.symbol_table[param.name as usize]
                 )
                 .map_err(|e| LLVMError::Message(e.to_string()))?;

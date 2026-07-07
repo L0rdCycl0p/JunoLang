@@ -135,10 +135,10 @@ primary = {
     | boolean
     | string
     | char
+    | struct_init
     | call
     | var_ident
     | array
-    | struct_init
     | "(" ~ expr ~ ")"
 }
 

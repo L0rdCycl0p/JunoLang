@@ -1,0 +1,21 @@
+[package]
+name = "junolsp"
+description = "Language Server for JunoLang"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+dashmap.workspace = true
+libjuno.workspace = true
+tokio.workspace = true
+tower-lsp.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+url.workspace = true
