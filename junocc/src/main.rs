@@ -87,7 +87,7 @@ fn main() {
                 );
                 object_paths.push(path.clone());
             }
-            let linker_args: Vec<String> = vec!["-o".to_string(), "program".to_string(), "-no-pie".to_string()];
+            let linker_args: Vec<String> = vec!["-o".to_string(), output, "-no-pie".to_string()];
             object_paths.extend(linker_args);
             let _status = Command::new(&linker)
                 .args(&object_paths)

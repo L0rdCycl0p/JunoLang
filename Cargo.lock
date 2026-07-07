@@ -147,7 +147,7 @@ dependencies = [
  "bitflags",
  "inkwell_internals",
  "libc",
- "llvm-sys",
+ "llvm-sys 221.0.1",
  "thiserror",
 ]
 
@@ -173,7 +173,7 @@ name = "junocc"
 version = "0.1.2"
 dependencies = [
  "clap",
- "libjuno 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libjuno",
 ]
 
 [[package]]
@@ -193,7 +193,7 @@ name = "libjuno"
 version = "0.1.2"
 dependencies = [
  "inkwell",
- "llvm-sys",
+ "llvm-sys 181.3.0",
  "pest",
  "pest_derive",
  "phf",
@@ -201,17 +201,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "libjuno"
-version = "0.1.2"
+name = "llvm-sys"
+version = "181.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4c0e764fc403ac1ab9359b964ba5d6fc395b97d44e51b6f6348dd27b58b8dc1"
+checksum = "e24aad69cbdb0c6ebe777262e9e6314dceba0d6e6a2a63e47563ccd293a2eda8"
 dependencies = [
- "inkwell",
- "llvm-sys",
- "pest",
- "pest_derive",
- "phf",
- "phf_macros",
+ "anyhow",
+ "cc",
+ "lazy_static",
+ "libc",
+ "regex-lite",
+ "semver",
 ]
 
 [[package]]
