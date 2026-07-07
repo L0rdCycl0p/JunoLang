@@ -5,3 +5,12 @@ members = [
 ]
 
 resolver = "2"
+
+[workspace.package]
+version = "0.1.2"
+edition = "2024"
+license-file = "LICENSE"
+authors = ["L0rdCyclp"]
+repository = "https://github.com/L0rdCycl0p/JunoLang"
+homepage = "https://github.com/L0rdCycl0p/JunoLang"
+readme = "README.md"

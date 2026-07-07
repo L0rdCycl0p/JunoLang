@@ -1,17 +1,18 @@
 [package]
 name = "libjuno"
-version = "0.1.2"
-edition = "2024"
-license-file = "./LICENSE"
-description = "Library for JunoLang"
-homepage = "https://github.com/L0rdCycl0p/JunoLang"
-repository = "https://github.com/L0rdCycl0p/JunoLang"
-readme = "./README.md"
 keywords = ["language", "junolang", "juno", "programming-language"]
 include = [
     "**/*.rs",
     "**/*.pest"
 ]
+
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme.workspace = true
 [dependencies]
 inkwell = { version = "0.9.0", features = ["llvm22-1"] }
 llvm-sys = "221.0.1"
