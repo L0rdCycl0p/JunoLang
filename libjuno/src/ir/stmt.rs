@@ -196,7 +196,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         Ok(())
     }
     fn lower_assign(&mut self, target: SymbolId, value: &MetaExpr) -> Result<(), LLVMError> {
-        let (ptr, ty) = {
+        let (ptr, _ty) = {
             let var = self.get_variable(target)?;
             (var.ptr, var.ty)
         };

@@ -80,16 +80,16 @@ fn main() {
                 o.module.to_string().hash(&mut s);
                 let hash = s.finish();
                 let path = &format!("./{}-{:x}.o", o.filename, hash).to_string();
-                target_machine.write_to_file(
+                let _ = target_machine.write_to_file(
                     &o.module,
                     libjuno::inkwell::targets::FileType::Object,
                     Path::new(path)
                 );
                 object_paths.push(path.clone());
             }
-            let mut linker_args: Vec<String> = vec!["-o".to_string(), "program".to_string(), "-no-pie".to_string()];
+            let linker_args: Vec<String> = vec!["-o".to_string(), "program".to_string(), "-no-pie".to_string()];
             object_paths.extend(linker_args);
-            let status = Command::new(&linker)
+            let _status = Command::new(&linker)
                 .args(&object_paths)
                 .status().unwrap();
         }

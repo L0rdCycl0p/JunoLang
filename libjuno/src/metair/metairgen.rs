@@ -403,7 +403,7 @@ impl<'a> MetaIRGen<'a> {
                                     builtin_registry::BuiltinEnum::Function { param_types: _, return_type } => {
                                         self.lower_type(&Type::Named(return_type.to_string()))
                                     }
-                                    _ => panic!("Function not declared: {}", target_name)
+                                    //_ => panic!("Function not declared: {}", target_name) // unreachable
                                 }
                             }
                         }

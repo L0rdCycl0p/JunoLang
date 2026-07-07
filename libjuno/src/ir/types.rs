@@ -9,11 +9,11 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub fn lower_type(&self, ty: &MetaType) -> Result<BasicTypeEnum<'ctx>, LLVMError> {
         match ty {
             MetaType::Pointer(inner) => {
-                Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into())
+                Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into()) // TODO ptr_type is deprecated, searching for alternative
             }
 
             MetaType::Reference(inner) => {
-                Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into())
+                Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into()) // TODO
             }
             MetaType::Array { elem, size } => Ok(self.lower_type(elem)?.array_type(*size).into()),
             

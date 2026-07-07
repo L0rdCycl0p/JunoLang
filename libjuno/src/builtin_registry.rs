@@ -6,11 +6,6 @@ pub struct Builtin {
     pub declare: BuiltinEnum,
 }
 
-impl Builtin {
-    fn new(id: u32, declare: BuiltinEnum) -> Self {
-        Self { id, declare }
-    }
-}
 pub enum BuiltinEnum {
     Function {
         param_types: Option<Vec<Type>>,
