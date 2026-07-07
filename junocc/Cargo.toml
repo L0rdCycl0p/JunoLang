@@ -1,6 +1,5 @@
 [package]
 name = "junocc"
-keywords = ["language", "junolang", "juno", "programming-language", "compiler"]
 include = [
     "**/*.rs",
     "**/*.pest"
@@ -13,7 +12,8 @@ authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
 readme.workspace = true
-
+keywords.workspace = true
+categories.workspace = true
 [dependencies]
-clap = { version = "4.6.1", features = ["derive"] }
-libjuno = { version = "0.1.2" }
+clap.workspace = true
+libjuno.workspace = true
