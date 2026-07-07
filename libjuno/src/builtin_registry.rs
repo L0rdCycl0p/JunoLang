@@ -13,10 +13,10 @@ pub enum BuiltinEnum {
     },
 }
 
-
-
-
-const REGISTRY: phf::Map<&'static str, Builtin> = phf_map! {
+const REGISTRY: phf::Map<
+    &'static str,
+    Builtin
+> = phf_map! {
     "printf" => Builtin {
         id: 0,
         declare: BuiltinEnum::Function {
@@ -48,13 +48,22 @@ const REGISTRY: phf::Map<&'static str, Builtin> = phf_map! {
             return_type: "i32",
         },
     },
+    "scanf" => Builtin {
+        id: 4,
+        declare: BuiltinEnum::Function {
+            param_types: None,
+            return_type: "u8",
+        },
+    },
+
+
 };
 pub fn is_builtin(name: &str) -> bool {
     REGISTRY.contains_key(name)
 }
 
 pub fn get_builtin_id(name: &str) -> u32 {
-    ((1 as u32) << 16) | (REGISTRY.get(name).unwrap().id)
+    ((1 as u32) << 16) | REGISTRY.get(name).unwrap().id
 }
 
 pub fn get_builtin(name: &str) -> Option<&Builtin> {

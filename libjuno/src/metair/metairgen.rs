@@ -9,11 +9,11 @@ use crate::metair::metair::*;
 
 pub struct MetaIRGen<'a> {
     program: &'a Program,
-    symbols: HashMap<String, SymbolId>,
-    strings: HashMap<String, StringId>,
+    pub(in crate::metair) symbols: HashMap<String, SymbolId>,
+    pub(in crate::metair) strings: HashMap<String, StringId>,
 
-    symbol_list: Vec<String>,
-    string_list: Vec<String>,
+    pub(in crate::metair) symbol_list: Vec<String>,
+    pub(in crate::metair) string_list: Vec<String>,
     pub(crate) locals: Vec<HashMap<SymbolId, MetaType>>,
     next_symbol: u32,
     next_string: u32,
@@ -47,7 +47,7 @@ impl<'a> MetaIRGen<'a> {
     // Interning
     // =======================
 
-    fn intern_symbol(&mut self, s: &str) -> SymbolId {
+    pub(in crate::metair) fn intern_symbol(&mut self, s: &str) -> SymbolId {
         if let Some(id) = self.symbols.get(s) {
             return *id;
         }

@@ -5,5 +5,15 @@ fn main() -> i32 {
     puts("hello form puts");
     putchar('h');
     putchar('i');
+    loop {
+        let input: char = *"";
+        printf("Reading your input (e to exit): ");
+        scanf("%256s", &input);
+        if (input == 'e') {
+            break;
+        }
+        printf("you entered: %s\n", &input);
+    }
+    printf("exit loop succesfully");
     return 0;
 }

@@ -29,8 +29,9 @@ impl<'a> MetaIRGen<'a> {
                 return ty.clone();
             }
         }
-
-        panic!("unknown local variable {}", id);
+        let binding = format!("<noname:{:#08x}>", id).to_string();
+        let name = &self.symbol_list.get(id as usize).unwrap_or(&binding);
+        panic!("unknown local variable '{}'", name);
     }
     
 }

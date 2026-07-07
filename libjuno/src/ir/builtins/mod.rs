@@ -4,13 +4,15 @@ use inkwell::module::Linkage;
 use crate::{ LLVMBackend, get_builtin_id };
 
 pub mod writing;
-
+pub mod reading;
 impl<'ctx> LLVMBackend<'ctx> {
     pub fn declare_builtins(&mut self) {
         self.add_printf();
         self.add_puts();
         self.add_putchar();
         self.add_getchar();
+
+        self.add_scanf();
     }
 }
 
