@@ -16,7 +16,7 @@ pub fn compile_file(p: &Path) -> Module<'static> {
             panic!("{e}");
         }
     };
-    let expr_owned = parse_program(pairs.into_iter().next().unwrap());
+    let expr_owned = parse_program(pairs.into_iter().next().unwrap()).unwrap();
     let expr = Box::leak(Box::new(expr_owned));
     let metairgen = Box::leak(Box::new(MetaIRGen::new(expr)));
     let metair = Box::leak(Box::new(metairgen.lower_program(expr)));

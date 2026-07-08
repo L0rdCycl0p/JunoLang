@@ -24,6 +24,12 @@ pub(super) fn get_program(
             return Err(Error::new(ErrorKind::Other, "oh no!"));
         }
     };
-    let expr_owned = parse_program(pairs.into_iter().next().unwrap());
+    let expr_owned = match parse_program(pairs.into_iter().next().unwrap()) {
+        Ok(e) => e,
+        Err(e) => {
+            backend.client.log_message(MessageType::ERROR, format!("{}", e));
+            return Err(Error::new(ErrorKind::Other, "oh no!"));
+        }
+    };
     Ok(expr_owned)
 }
