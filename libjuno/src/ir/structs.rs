@@ -1,7 +1,7 @@
 use inkwell::types::{BasicTypeEnum, StructType};
 
-use crate::metair::*;
 use super::*;
+use crate::metair::*;
 
 impl<'ctx> LLVMBackend<'ctx> {
     fn struct_type(&mut self, s: &MetaStruct) -> Result<StructType<'ctx>, LLVMError> {
@@ -33,11 +33,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         Ok(())
     }
 
-    pub fn add_struct(
-        &mut self,
-        id: u32,
-        ty: &StructType<'ctx>,
-    ) -> Result<(), LLVMError> {
+    pub fn add_struct(&mut self, id: u32, ty: &StructType<'ctx>) -> Result<(), LLVMError> {
         self.structs.insert(id, *ty);
         Ok(())
     }
@@ -55,10 +51,7 @@ impl<'ctx> LLVMBackend<'ctx> {
             .ok_or_else(|| LLVMError::Message(format!("unknown struct {}", id)))
     }
 
-    pub fn get_struct(
-        &self,
-        target: &[SymbolId],
-    ) -> Result<StructType<'ctx>, LLVMError> {
+    pub fn get_struct(&self, target: &[SymbolId]) -> Result<StructType<'ctx>, LLVMError> {
         if target.len() != 1 {
             return Err(LLVMError::Message(
                 "qualified struct lookup is not implemented".into(),
@@ -67,14 +60,11 @@ impl<'ctx> LLVMBackend<'ctx> {
 
         let id = target[0];
 
-        self.structs
-            .get(&id)
-            .copied()
-            .ok_or_else(|| {
-                LLVMError::Message(format!(
-                    "unknown struct '{}'",
-                    self.program.symbol_table[id as usize]
-                ))
-            })
+        self.structs.get(&id).copied().ok_or_else(|| {
+            LLVMError::Message(format!(
+                "unknown struct '{}'",
+                self.program.symbol_table[id as usize]
+            ))
+        })
     }
 }

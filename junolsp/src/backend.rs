@@ -4,15 +4,11 @@
 
 use std::sync::Arc;
 
-use tower_lsp::{ jsonrpc::Result, lsp_types::*, Client, LanguageServer };
+use tower_lsp::{Client, LanguageServer, jsonrpc::Result, lsp_types::*};
 
 use crate::{
-    completion,
-    diagnostics,
-    goto_definition,
-    hover,
-    semantic_tokens,
-    workspace::{ SharedWorkspace, Workspace },
+    completion, diagnostics, goto_definition, hover, semantic_tokens,
+    workspace::{SharedWorkspace, Workspace},
 };
 
 pub struct Backend {
@@ -34,9 +30,9 @@ impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
-                text_document_sync: Some(
-                    TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)
-                ),
+                text_document_sync: Some(TextDocumentSyncCapability::Kind(
+                    TextDocumentSyncKind::FULL,
+                )),
 
                 completion_provider: Some(CompletionOptions::default()),
 
@@ -46,8 +42,8 @@ impl LanguageServer for Backend {
 
                 semantic_tokens_provider: Some(
                     SemanticTokensServerCapabilities::SemanticTokensOptions(
-                        SemanticTokensOptions::default()
-                    )
+                        SemanticTokensOptions::default(),
+                    ),
                 ),
 
                 ..Default::default()
@@ -58,7 +54,9 @@ impl LanguageServer for Backend {
     }
 
     async fn initialized(&self, _: InitializedParams) {
-        self.client.log_message(MessageType::INFO, "Juno Language Server startet.").await;
+        self.client
+            .log_message(MessageType::INFO, "Juno Language Server startet.")
+            .await;
     }
 
     async fn shutdown(&self) -> Result<()> {
@@ -66,14 +64,16 @@ impl LanguageServer for Backend {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        self.workspace.open(params.text_document.uri.clone(), params.text_document.text);
+        self.workspace
+            .open(params.text_document.uri.clone(), params.text_document.text);
 
         diagnostics::publish(self, params.text_document.uri).await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         if let Some(change) = params.content_changes.first() {
-            self.workspace.update(params.text_document.uri.clone(), change.text.clone());
+            self.workspace
+                .update(params.text_document.uri.clone(), change.text.clone());
 
             diagnostics::publish(self, params.text_document.uri).await;
         }

@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::*;
+use std::fmt;
 #[derive(Debug)]
 pub enum LLVMError {
     UnknownVariable(SymbolId),
@@ -14,15 +14,25 @@ pub enum LLVMError {
 impl fmt::Display for LLVMError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            LLVMError::UnknownVariable(id) => { write!(f, "unknown variable {id}") }
+            LLVMError::UnknownVariable(id) => {
+                write!(f, "unknown variable {id}")
+            }
 
-            LLVMError::UnknownFunction(id) => { write!(f, "unknown function {id}") }
+            LLVMError::UnknownFunction(id) => {
+                write!(f, "unknown function {id}")
+            }
 
-            LLVMError::UnknownType(id) => { write!(f, "unknown type {id}") }
+            LLVMError::UnknownType(id) => {
+                write!(f, "unknown type {id}")
+            }
 
-            LLVMError::InvalidExpression => { write!(f, "invalid expression") }
+            LLVMError::InvalidExpression => {
+                write!(f, "invalid expression")
+            }
 
-            LLVMError::Message(msg) => { write!(f, "{msg}") }
+            LLVMError::Message(msg) => {
+                write!(f, "{msg}")
+            }
         }
     }
 }

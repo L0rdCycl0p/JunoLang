@@ -2,15 +2,11 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::diagnostics::{
-    DiagnosticCode, Severity, Span, Suggestion,
-};
+use crate::diagnostics::{DiagnosticCode, Severity, Span, Suggestion};
 
 #[derive(Debug, Clone)]
 pub struct Diagnostic {
-
     //pub code: DiagnosticCode,
-
     pub severity: Severity,
 
     pub span: Span,
@@ -21,5 +17,3 @@ pub struct Diagnostic {
 
     pub suggestions: Vec<Suggestion>,
 }
-
-

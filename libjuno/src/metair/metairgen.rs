@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-use crate::{ ast::*, builtin_registry, get_builtin_id, is_builtin };
 use crate::metair::metair::*;
+use crate::{ast::*, builtin_registry, get_builtin_id, is_builtin};
 
 // =======================
 // Generator State
@@ -22,7 +22,7 @@ pub struct MetaIRGen<'a> {
     next_func: u32,
     next_type: u32,
     next_struct_field: u32,
-    counter: u32
+    counter: u32,
 }
 
 impl MetaProgram {
@@ -101,7 +101,7 @@ impl<'a> MetaIRGen<'a> {
     }
     fn counter(&mut self) -> u32 {
         let c = self.counter;
-        self.counter+=1;
+        self.counter += 1;
         c
     }
     fn reset_counter(&mut self) {
@@ -129,16 +129,15 @@ impl<'a> MetaIRGen<'a> {
                 Item::Import(_) => {}
             }
         }
-        let struct_fields: HashMap<SymbolId, Vec<String>> = HashMap::from_iter(self.struct_fields.clone()
-            .into_iter()
-            .map(|(struct_id, fields)| (
-                struct_id,
-                fields
-                    .clone()
-                    .into_iter()
-                    .map(|(key, _)| key)
-                    .collect(),
-            )));
+        let struct_fields: HashMap<SymbolId, Vec<String>> =
+            HashMap::from_iter(self.struct_fields.clone().into_iter().map(
+                |(struct_id, fields)| {
+                    (
+                        struct_id,
+                        fields.clone().into_iter().map(|(key, _)| key).collect(),
+                    )
+                },
+            ));
 
         MetaProgram {
             functions,
@@ -168,10 +167,7 @@ impl<'a> MetaIRGen<'a> {
 
             self.locals.last_mut().unwrap().insert(sym, ty.clone());
 
-            params.push(MetaParam {
-                name: sym,
-                ty,
-            });
+            params.push(MetaParam { name: sym, ty });
         }
 
         let ret = f.return_type.as_ref().map(|t| self.lower_type(t));
@@ -196,10 +192,7 @@ impl<'a> MetaIRGen<'a> {
     fn lower_block(&mut self, b: &Block) -> Vec<MetaStmt> {
         self.locals.push(HashMap::new());
 
-        let body = b.stmts
-            .iter()
-            .map(|s| self.lower_stmt(s))
-            .collect();
+        let body = b.stmts.iter().map(|s| self.lower_stmt(s)).collect();
 
         self.locals.pop();
 
@@ -210,11 +203,10 @@ impl<'a> MetaIRGen<'a> {
         match s {
             Stmt::Let(l) => self.lower_let(l),
 
-            Stmt::AssignStmt(e) =>
-                MetaStmt::Assign {
-                    target: self.intern_symbol(&e.name),
-                    value: self.lower_expr(&e.value),
-                },
+            Stmt::AssignStmt(e) => MetaStmt::Assign {
+                target: self.intern_symbol(&e.name),
+                value: self.lower_expr(&e.value),
+            },
 
             Stmt::Expr(e) => MetaStmt::Expr(self.lower_expr(e)),
 
@@ -224,16 +216,16 @@ impl<'a> MetaIRGen<'a> {
 
             Stmt::Continue => MetaStmt::Continue,
 
-            Stmt::If(i) =>
-                MetaStmt::If {
-                    cond: self.lower_expr(&i.condition),
-                    then_body: self.lower_block(&i.then_block),
-                    else_ifs: i.else_ifs
-                        .iter()
-                        .map(|(c, b)| (self.lower_expr(c), self.lower_block(b)))
-                        .collect(),
-                    else_body: i.else_block.as_ref().map(|b| self.lower_block(b)),
-                },
+            Stmt::If(i) => MetaStmt::If {
+                cond: self.lower_expr(&i.condition),
+                then_body: self.lower_block(&i.then_block),
+                else_ifs: i
+                    .else_ifs
+                    .iter()
+                    .map(|(c, b)| (self.lower_expr(c), self.lower_block(b)))
+                    .collect(),
+                else_body: i.else_block.as_ref().map(|b| self.lower_block(b)),
+            },
 
             Stmt::While(w) => {
                 let cond = self.lower_expr(&w.condition);
@@ -256,10 +248,9 @@ impl<'a> MetaIRGen<'a> {
                 }
             }
 
-            Stmt::Loop(b) =>
-                MetaStmt::Loop {
-                    body: self.lower_block(b),
-                },
+            Stmt::Loop(b) => MetaStmt::Loop {
+                body: self.lower_block(b),
+            },
 
             Stmt::For(_) => MetaStmt::Break,
         }
@@ -297,7 +288,10 @@ impl<'a> MetaIRGen<'a> {
             (
                 MetaExprKind::Array(values),
                 MetaType::Array { .. },
-                MetaType::Array { elem: expected_elem, size },
+                MetaType::Array {
+                    elem: expected_elem,
+                    size,
+                },
             ) => {
                 if values.len() > (*size as usize) {
                     panic!("array too large");
@@ -321,13 +315,12 @@ impl<'a> MetaIRGen<'a> {
         let s = MetaStruct {
             id,
             name: self.intern_symbol(&s.name),
-            fields: s.fields
+            fields: s
+                .fields
                 .iter()
-                .map(|f| {
-                    MetaField {
-                        index: self.intern_struct_field(id, &f.name),
-                        ty: self.lower_type(&f.ty),
-                    }
+                .map(|f| MetaField {
+                    index: self.intern_struct_field(id, &f.name),
+                    ty: self.lower_type(&f.ty),
                 })
                 .collect(),
         };
@@ -340,23 +333,20 @@ impl<'a> MetaIRGen<'a> {
 
     fn lower_expr(&mut self, e: &Expr) -> MetaExpr {
         match e {
-            Expr::Number(n) =>
-                MetaExpr {
-                    kind: MetaExprKind::Const(MetaConst::Int(*n)),
-                    ty: MetaType::Named(self.intern_symbol("i32")),
-                },
+            Expr::Number(n) => MetaExpr {
+                kind: MetaExprKind::Const(MetaConst::Int(*n)),
+                ty: MetaType::Named(self.intern_symbol("i32")),
+            },
 
-            Expr::Boolean(b) =>
-                MetaExpr {
-                    kind: MetaExprKind::Const(MetaConst::Bool(*b)),
-                    ty: MetaType::Named(self.intern_symbol("bool")),
-                },
+            Expr::Boolean(b) => MetaExpr {
+                kind: MetaExprKind::Const(MetaConst::Bool(*b)),
+                ty: MetaType::Named(self.intern_symbol("bool")),
+            },
 
-            Expr::Char(c) =>
-                MetaExpr {
-                    kind: MetaExprKind::Const(MetaConst::Char(*c)),
-                    ty: MetaType::Named(self.intern_symbol("char")),
-                },
+            Expr::Char(c) => MetaExpr {
+                kind: MetaExprKind::Const(MetaConst::Char(*c)),
+                ty: MetaType::Named(self.intern_symbol("char")),
+            },
 
             Expr::String(s) => {
                 let id = self.intern_string(s);
@@ -378,10 +368,7 @@ impl<'a> MetaIRGen<'a> {
             }
 
             Expr::Array(values) => {
-                let values: Vec<_> = values
-                    .iter()
-                    .map(|e| self.lower_expr(e))
-                    .collect();
+                let values: Vec<_> = values.iter().map(|e| self.lower_expr(e)).collect();
 
                 let elem_ty = values
                     .first()
@@ -398,9 +385,10 @@ impl<'a> MetaIRGen<'a> {
             }
 
             Expr::StructInit(s) => {
-                let fields = s.fields
+                let fields = s
+                    .fields
                     .iter()
-                    .map(|f| { (self.counter(), self.lower_expr(&f.value)) })
+                    .map(|f| (self.counter(), self.lower_expr(&f.value)))
                     .collect();
                 self.reset_counter();
                 let ty = MetaType::Named(self.intern_symbol(&s.name));
@@ -415,20 +403,16 @@ impl<'a> MetaIRGen<'a> {
             }
 
             Expr::Call(c) => {
-                let target: Vec<_> = c.target
-                    .iter()
-                    .map(|s| self.intern_symbol(s))
-                    .collect();
+                let target: Vec<_> = c.target.iter().map(|s| self.intern_symbol(s)).collect();
 
-                let args: Vec<_> = c.args
+                let args: Vec<_> = c
+                    .args
                     .iter()
-                    .map(|a| {
-                        match a {
-                            Arg::Positional(e) => { MetaArg::Pos(self.lower_expr(e)) }
+                    .map(|a| match a {
+                        Arg::Positional(e) => MetaArg::Pos(self.lower_expr(e)),
 
-                            Arg::Named(name, e) => {
-                                MetaArg::Named(self.intern_symbol(name), self.lower_expr(e))
-                            }
+                        Arg::Named(name, e) => {
+                            MetaArg::Named(self.intern_symbol(name), self.lower_expr(e))
                         }
                     })
                     .collect();
@@ -439,16 +423,15 @@ impl<'a> MetaIRGen<'a> {
                     None => {
                         let builtin = builtin_registry::get_builtin(target_name);
                         match builtin {
-                            None => { todo!() }
+                            None => {
+                                todo!()
+                            }
                             Some(b) => {
                                 match &b.declare {
                                     builtin_registry::BuiltinEnum::Function {
                                         param_types: _,
                                         return_type,
-                                    } => {
-                                        self.lower_type(&Type::Named(return_type.to_string()))
-                                    }
-                                    //_ => panic!("Function not declared: {}", target_name) // unreachable
+                                    } => self.lower_type(&Type::Named(return_type.to_string())), //_ => panic!("Function not declared: {}", target_name) // unreachable
                                 }
                             }
                         }
@@ -457,10 +440,7 @@ impl<'a> MetaIRGen<'a> {
                 };
 
                 MetaExpr {
-                    kind: MetaExprKind::Call {
-                        target,
-                        args,
-                    },
+                    kind: MetaExprKind::Call { target, args },
                     ty,
                 }
             }
@@ -470,16 +450,14 @@ impl<'a> MetaIRGen<'a> {
                 let rhs = self.lower_expr(&b.right);
 
                 let ty = match b.op {
-                    | BinOp::Eq
+                    BinOp::Eq
                     | BinOp::Neq
                     | BinOp::Lt
                     | BinOp::Lte
                     | BinOp::Gt
                     | BinOp::Gte
                     | BinOp::And
-                    | BinOp::Or => {
-                        MetaType::Named(self.intern_symbol("bool"))
-                    }
+                    | BinOp::Or => MetaType::Named(self.intern_symbol("bool")),
 
                     _ => lhs.ty.clone(),
                 };
@@ -498,15 +476,13 @@ impl<'a> MetaIRGen<'a> {
                 let expr = self.lower_expr(&u.expr);
 
                 let ty = match u.op {
-                    UnOp::Ref => { MetaType::Pointer(Box::new(expr.ty.clone())) }
+                    UnOp::Ref => MetaType::Pointer(Box::new(expr.ty.clone())),
 
-                    UnOp::Deref => {
-                        match &expr.ty {
-                            MetaType::Pointer(inner) => (**inner).clone(),
-                            MetaType::Reference(inner) => (**inner).clone(),
-                            _ => expr.ty.clone(),
-                        }
-                    }
+                    UnOp::Deref => match &expr.ty {
+                        MetaType::Pointer(inner) => (**inner).clone(),
+                        MetaType::Reference(inner) => (**inner).clone(),
+                        _ => expr.ty.clone(),
+                    },
 
                     _ => expr.ty.clone(),
                 };
@@ -565,27 +541,23 @@ impl<'a> MetaIRGen<'a> {
         match t {
             Type::Named(n) => MetaType::Named(self.intern_symbol(n)),
 
-            Type::Pointer(inner) => { MetaType::Pointer(Box::new(self.lower_type(inner))) }
+            Type::Pointer(inner) => MetaType::Pointer(Box::new(self.lower_type(inner))),
 
-            Type::Reference(inner) => { MetaType::Reference(Box::new(self.lower_type(inner))) }
+            Type::Reference(inner) => MetaType::Reference(Box::new(self.lower_type(inner))),
 
-            Type::Array { elem, size } => {
-                MetaType::Array {
-                    elem: Box::new(self.lower_type(elem)),
-                    size: *size,
-                }
-            }
+            Type::Array { elem, size } => MetaType::Array {
+                elem: Box::new(self.lower_type(elem)),
+                size: *size,
+            },
 
-            Type::Generic { base, args: _ } => { MetaType::Named(self.intern_symbol(base)) }
+            Type::Generic { base, args: _ } => MetaType::Named(self.intern_symbol(base)),
         }
     }
 
     pub(crate) fn find_function(&self, name: &str) -> Option<&'a Function> {
-        self.program.items.iter().find_map(move |item| {
-            match item {
-                Item::Function(f) if f.name == name => Some(f),
-                _ => None,
-            }
+        self.program.items.iter().find_map(move |item| match item {
+            Item::Function(f) if f.name == name => Some(f),
+            _ => None,
         })
     }
 }

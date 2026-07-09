@@ -1,12 +1,16 @@
-use std::{ path::Path, process::exit };
 use inkwell::module::Module;
 use pest::Parser;
+use std::{path::Path, process::exit};
 
 use crate::*;
 
 pub fn compile_file(p: &Path) -> Module<'static> {
     let input = match std::fs::read_to_string(p) {
-        Err(e) => panic!("Error while reading file {} (ERR: {})", p.to_str().unwrap(), e),
+        Err(e) => panic!(
+            "Error while reading file {} (ERR: {})",
+            p.to_str().unwrap(),
+            e
+        ),
         Ok(s) => s,
     };
 

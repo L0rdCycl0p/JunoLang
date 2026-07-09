@@ -4,7 +4,7 @@
 
 use pest::Parser;
 
-use crate::diagnostics::{ DiagnosticEngine, DiagnosticProvider, parse };
+use crate::diagnostics::{DiagnosticEngine, DiagnosticProvider, parse};
 use crate::{JunoParser, Rule};
 pub struct SyntaxProvider;
 

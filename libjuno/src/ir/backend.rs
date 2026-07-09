@@ -10,7 +10,7 @@ use inkwell::{
     builder::Builder,
     context::Context,
     module::Module,
-    values::{ FunctionValue, PointerValue },
+    values::{FunctionValue, PointerValue},
 };
 
 use crate::metair::MetaProgram;
@@ -66,7 +66,7 @@ impl<'ctx> LLVMBackend<'ctx> {
             loop_stack: Vec::new(),
 
             current_function: None,
-            current_struct: None
+            current_struct: None,
         };
         s.declare_builtins();
         s
@@ -77,7 +77,9 @@ impl<'ctx> LLVMBackend<'ctx> {
 
     pub fn compile(&mut self) -> Result<Module<'ctx>, LLVMError> {
         self.lower_program()?;
-        self.module.verify().map_err(|e| { LLVMError::Message(e.to_string()) })?;
+        self.module
+            .verify()
+            .map_err(|e| LLVMError::Message(e.to_string()))?;
 
         Ok(self.module.clone())
     }
@@ -99,14 +101,14 @@ impl<'ctx> LLVMBackend<'ctx> {
         &mut self,
         id: SymbolId,
         ptr: PointerValue<'ctx>,
-        ty: BasicTypeEnum<'ctx>
+        ty: BasicTypeEnum<'ctx>,
     ) {
         self.scopes.last_mut().unwrap().insert(id, ptr, ty);
     }
 
     pub fn get_variable(
         &self,
-        id: SymbolId
+        id: SymbolId,
     ) -> Result<&crate::ir::scope::Variable<'ctx>, LLVMError> {
         for scope in self.scopes.iter().rev() {
             if let Some(var) = scope.get(id) {

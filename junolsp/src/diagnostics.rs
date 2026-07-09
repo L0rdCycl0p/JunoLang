@@ -2,33 +2,20 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use tower_lsp::lsp_types::{
-    Diagnostic,
-    DiagnosticSeverity,
-    Position,
-    Range,
-    Url,
-};
+use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url};
 
 use libjuno::diagnostics;
 
 use crate::backend::Backend;
 
-pub async fn publish(
-    backend: &Backend,
-    uri: Url,
-) {
-
+pub async fn publish(backend: &Backend, uri: Url) {
     let Some(source) = backend.workspace.source(&uri) else {
         return;
     };
 
     let diagnostics = diagnostics::analyze(&source);
 
-    let diagnostics = diagnostics
-        .into_iter()
-        .map(to_lsp)
-        .collect();
+    let diagnostics = diagnostics.into_iter().map(to_lsp).collect();
 
     backend
         .client
@@ -36,11 +23,7 @@ pub async fn publish(
         .await;
 }
 
-
-fn to_lsp(
-    diagnostic: libjuno::diagnostics::Diagnostic,
-) -> tower_lsp::lsp_types::Diagnostic {
-
+fn to_lsp(diagnostic: libjuno::diagnostics::Diagnostic) -> tower_lsp::lsp_types::Diagnostic {
     use tower_lsp::lsp_types::*;
 
     Diagnostic {

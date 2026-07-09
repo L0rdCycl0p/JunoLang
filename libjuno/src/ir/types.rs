@@ -1,5 +1,5 @@
-use inkwell::types::BasicType;
 use crate::metair::*;
+use inkwell::types::BasicType;
 
 use super::*;
 
@@ -9,14 +9,20 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub fn lower_type(&mut self, ty: &MetaType) -> Result<BasicTypeEnum<'ctx>, LLVMError> {
         match ty {
             MetaType::Pointer(inner) => {
-                Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into()) // TODO ptr_type is deprecated, searching for alternative
+                Ok(self
+                    .lower_type(inner)?
+                    .ptr_type(inkwell::AddressSpace::default())
+                    .into()) // TODO ptr_type is deprecated, searching for alternative
             }
 
             MetaType::Reference(inner) => {
-                Ok(self.lower_type(inner)?.ptr_type(inkwell::AddressSpace::default()).into()) // TODO
+                Ok(self
+                    .lower_type(inner)?
+                    .ptr_type(inkwell::AddressSpace::default())
+                    .into()) // TODO
             }
             MetaType::Array { elem, size } => Ok(self.lower_type(elem)?.array_type(*size).into()),
-            
+
             MetaType::Named(id) => {
                 let name = &self.program.symbol_table[*id as usize];
                 match name.as_str() {
@@ -39,20 +45,19 @@ impl<'ctx> LLVMBackend<'ctx> {
 
                     _ => {
                         if self.program.structs.get(*id as usize).is_some() {
-                            if self.structs.get(id).is_none(){
+                            if self.structs.get(id).is_none() {
                                 self.lower_struct(&self.program.structs[*id as usize])?;
                             }
                             return match self.get_struct(vec![*id].as_slice()) {
                                 Err(e) => Err(e),
-                                Ok(s) => Ok(s.into())
+                                Ok(s) => Ok(s.into()),
                             };
                         }
                         Err(LLVMError::UnknownType(*id))
                     }
                 }
             }
-            MetaType::Unit => todo!()
-            //e => Err(LLVMError::Message(format!("type not implemented: {:#?}", e).into())),
+            MetaType::Unit => todo!(), //e => Err(LLVMError::Message(format!("type not implemented: {:#?}", e).into())),
         }
     }
 }

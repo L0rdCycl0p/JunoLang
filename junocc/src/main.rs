@@ -2,20 +2,16 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::hash::{ DefaultHasher, Hash, Hasher };
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::Path;
 use std::process::Command;
 
+use clap::Parser;
 use libjuno::inkwell::OptimizationLevel;
 use libjuno::inkwell::targets::{
-    CodeModel,
-    InitializationConfig,
-    RelocMode,
-    Target,
-    TargetMachine,
+    CodeModel, InitializationConfig, RelocMode, Target, TargetMachine,
 };
-use libjuno::{ compile_file, inkwell::module::Module };
-use clap::Parser;
+use libjuno::{compile_file, inkwell::module::Module};
 
 mod optimizer;
 
@@ -51,11 +47,10 @@ fn main() {
         let ext = file.split(".").last().unwrap();
 
         let mut o = match ext {
-            "juno" =>
-                JunoObject {
-                    module: compile_file(Path::new(&file)),
-                    filename: file,
-                },
+            "juno" => JunoObject {
+                module: compile_file(Path::new(&file)),
+                filename: file,
+            },
             _ => panic!("Unknown input filetyp: {}", ext),
         };
         optimizer::optimize(&mut o.module);
@@ -68,9 +63,9 @@ fn main() {
             o.module.to_string().hash(&mut s);
             let hash = s.finish();
 
-            o.module.write_bitcode_to_path(
-                Path::new(&format!("./{}-{:x}.bc", o.filename, hash).to_string())
-            );
+            o.module.write_bitcode_to_path(Path::new(
+                &format!("./{}-{:x}.bc", o.filename, hash).to_string(),
+            ));
         }
     }
     match out_ext {
@@ -87,15 +82,13 @@ fn main() {
                 let _ = target_machine.write_to_file(
                     &o.module,
                     libjuno::inkwell::targets::FileType::Object,
-                    Path::new(path)
+                    Path::new(path),
                 );
                 object_paths.push(path.clone());
             }
             let linker_args: Vec<String> = vec!["-o".to_string(), output, "-no-pie".to_string()];
             object_paths.extend(linker_args);
-            let _status = Command::new(&linker)
-                .args(&object_paths)
-                .status().unwrap();
+            let _status = Command::new(&linker).args(&object_paths).status().unwrap();
         }
         "lib" => {}
         "bc" => {}
@@ -117,7 +110,7 @@ pub fn get_target_machine() -> TargetMachine {
             "",
             OptimizationLevel::Default,
             RelocMode::Default,
-            CodeModel::Default
+            CodeModel::Default,
         )
         .unwrap()
 }

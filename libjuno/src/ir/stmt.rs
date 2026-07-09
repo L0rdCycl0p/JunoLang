@@ -6,18 +6,24 @@ use super::*;
 impl<'ctx> LLVMBackend<'ctx> {
     pub fn lower_stmt(&mut self, stmt: &MetaStmt) -> Result<(), LLVMError> {
         match stmt {
-            MetaStmt::Let { name, mutable: _, ty, value } => {
-                self.lower_let(*name, ty.as_ref(), value.as_ref())
-            }
-            MetaStmt::Break => { self.lower_break() }
-            MetaStmt::If { cond, then_body, else_ifs, else_body } => {
-                self.lower_if(cond, then_body, else_ifs, else_body.as_ref())
-            }
-            MetaStmt::Continue => { self.lower_continue() }
-            MetaStmt::Loop { body } => { self.lower_loop(body) }
-            MetaStmt::Return(expr) => { self.lower_return(expr.as_ref()) }
-            MetaStmt::Assign { target, value } => { self.lower_assign(*target, value) }
-            MetaStmt::Expr(expr) => { self.lower_expr_stmt(expr) }
+            MetaStmt::Let {
+                name,
+                mutable: _,
+                ty,
+                value,
+            } => self.lower_let(*name, ty.as_ref(), value.as_ref()),
+            MetaStmt::Break => self.lower_break(),
+            MetaStmt::If {
+                cond,
+                then_body,
+                else_ifs,
+                else_body,
+            } => self.lower_if(cond, then_body, else_ifs, else_body.as_ref()),
+            MetaStmt::Continue => self.lower_continue(),
+            MetaStmt::Loop { body } => self.lower_loop(body),
+            MetaStmt::Return(expr) => self.lower_return(expr.as_ref()),
+            MetaStmt::Assign { target, value } => self.lower_assign(*target, value),
+            MetaStmt::Expr(expr) => self.lower_expr_stmt(expr),
         }
     }
     fn lower_expr_stmt(&mut self, expr: &MetaExpr) -> Result<(), LLVMError> {
@@ -34,9 +40,10 @@ impl<'ctx> LLVMBackend<'ctx> {
         Ok(())
     }
     fn lower_continue(&mut self) -> Result<(), LLVMError> {
-        let frame = self.loop_stack
+        let frame = self
+            .loop_stack
             .last()
-            .ok_or_else(|| { LLVMError::Message("continue used outside of a loop".into()) })?;
+            .ok_or_else(|| LLVMError::Message("continue used outside of a loop".into()))?;
 
         self.builder
             .build_unconditional_branch(frame.continue_block)
@@ -45,9 +52,10 @@ impl<'ctx> LLVMBackend<'ctx> {
         Ok(())
     }
     fn lower_break(&mut self) -> Result<(), LLVMError> {
-        let frame = self.loop_stack
+        let frame = self
+            .loop_stack
             .last()
-            .ok_or_else(|| { LLVMError::Message("break used outside of a loop".into()) })?;
+            .ok_or_else(|| LLVMError::Message("break used outside of a loop".into()))?;
 
         self.builder
             .build_unconditional_branch(frame.break_block)
@@ -84,7 +92,13 @@ impl<'ctx> LLVMBackend<'ctx> {
         self.push_scope();
 
         for stmt in body {
-            if self.builder.get_insert_block().unwrap().get_terminator().is_some() {
+            if self
+                .builder
+                .get_insert_block()
+                .unwrap()
+                .get_terminator()
+                .is_some()
+            {
                 break;
             }
 
@@ -95,7 +109,13 @@ impl<'ctx> LLVMBackend<'ctx> {
 
         self.loop_stack.pop();
 
-        if self.builder.get_insert_block().unwrap().get_terminator().is_none() {
+        if self
+            .builder
+            .get_insert_block()
+            .unwrap()
+            .get_terminator()
+            .is_none()
+        {
             self.builder
                 .build_unconditional_branch(header_bb)
                 .map_err(|e| LLVMError::Message(e.to_string()))?;
@@ -110,7 +130,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         cond: &MetaExpr,
         then_body: &[MetaStmt],
         else_ifs: &[(MetaExpr, Vec<MetaStmt>)],
-        else_body: Option<&Vec<MetaStmt>>
+        else_body: Option<&Vec<MetaStmt>>,
     ) -> Result<(), LLVMError> {
         let function = self.current_function();
 
@@ -133,14 +153,26 @@ impl<'ctx> LLVMBackend<'ctx> {
         for stmt in then_body {
             self.lower_stmt(stmt)?;
 
-            if self.builder.get_insert_block().unwrap().get_terminator().is_some() {
+            if self
+                .builder
+                .get_insert_block()
+                .unwrap()
+                .get_terminator()
+                .is_some()
+            {
                 break;
             }
         }
 
         self.pop_scope();
 
-        if self.builder.get_insert_block().unwrap().get_terminator().is_none() {
+        if self
+            .builder
+            .get_insert_block()
+            .unwrap()
+            .get_terminator()
+            .is_none()
+        {
             self.builder
                 .build_unconditional_branch(merge_bb)
                 .map_err(|e| LLVMError::Message(e.to_string()))?;
@@ -155,7 +187,13 @@ impl<'ctx> LLVMBackend<'ctx> {
                 for stmt in body {
                     self.lower_stmt(stmt)?;
 
-                    if self.builder.get_insert_block().unwrap().get_terminator().is_some() {
+                    if self
+                        .builder
+                        .get_insert_block()
+                        .unwrap()
+                        .get_terminator()
+                        .is_some()
+                    {
                         break;
                     }
                 }
@@ -168,7 +206,13 @@ impl<'ctx> LLVMBackend<'ctx> {
             self.lower_if(cond, body, &else_ifs[1..], else_body)?;
         }
 
-        if self.builder.get_insert_block().unwrap().get_terminator().is_none() {
+        if self
+            .builder
+            .get_insert_block()
+            .unwrap()
+            .get_terminator()
+            .is_none()
+        {
             self.builder
                 .build_unconditional_branch(merge_bb)
                 .map_err(|e| LLVMError::Message(e.to_string()))?;
@@ -189,7 +233,9 @@ impl<'ctx> LLVMBackend<'ctx> {
             }
 
             None => {
-                self.builder.build_return(None).map_err(|e| LLVMError::Message(e.to_string()))?;
+                self.builder
+                    .build_return(None)
+                    .map_err(|e| LLVMError::Message(e.to_string()))?;
             }
         }
 
@@ -203,20 +249,23 @@ impl<'ctx> LLVMBackend<'ctx> {
 
         let value = self.lower_expr(value)?;
 
-        self.builder.build_store(ptr, value).map_err(|e| LLVMError::Message(e.to_string()))?;
+        self.builder
+            .build_store(ptr, value)
+            .map_err(|e| LLVMError::Message(e.to_string()))?;
         Ok(())
     }
     fn lower_let(
         &mut self,
         name: SymbolId,
         ty: Option<&MetaType>,
-        value: Option<&MetaExpr>
+        value: Option<&MetaExpr>,
     ) -> Result<(), LLVMError> {
         let ty = ty.ok_or_else(|| LLVMError::Message("let without type".into()))?;
 
         let llvm_ty = self.lower_type(ty)?;
 
-        let ptr = self.builder
+        let ptr = self
+            .builder
             .build_alloca(llvm_ty, &self.program.symbol_table[name as usize])
             .map_err(|e| LLVMError::Message(e.to_string()))?;
 
@@ -225,7 +274,9 @@ impl<'ctx> LLVMBackend<'ctx> {
         if let Some(expr) = value {
             let value = self.lower_expr(expr)?;
 
-            self.builder.build_store(ptr, value).map_err(|e| LLVMError::Message(e.to_string()))?;
+            self.builder
+                .build_store(ptr, value)
+                .map_err(|e| LLVMError::Message(e.to_string()))?;
         }
 
         Ok(())

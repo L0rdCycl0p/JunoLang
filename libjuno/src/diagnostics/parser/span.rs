@@ -18,47 +18,30 @@ use pest::error::LineColLocation;
 
 use crate::Rule;
 
-pub fn from_pest(
-    error: &pest::error::Error<Rule>,
-) -> Span {
-
+pub fn from_pest(error: &pest::error::Error<Rule>) -> Span {
     match error.line_col {
+        LineColLocation::Pos((line, column)) => Span {
+            start: Position {
+                line: line - 1,
+                column: column - 1,
+            },
 
-        LineColLocation::Pos((line, column)) => {
+            end: Position {
+                line: line - 1,
+                column,
+            },
+        },
 
-            Span {
-                start: Position {
-                    line: line - 1,
-                    column: column - 1,
-                },
+        LineColLocation::Span((sl, sc), (el, ec)) => Span {
+            start: Position {
+                line: sl - 1,
+                column: sc - 1,
+            },
 
-                end: Position {
-                    line: line - 1,
-                    column,
-                },
-            }
-
-        }
-
-        LineColLocation::Span(
-            (sl, sc),
-            (el, ec),
-        ) => {
-
-            Span {
-                start: Position {
-                    line: sl - 1,
-                    column: sc - 1,
-                },
-
-                end: Position {
-                    line: el - 1,
-                    column: ec,
-                },
-            }
-
-        }
-
+            end: Position {
+                line: el - 1,
+                column: ec,
+            },
+        },
     }
-
 }

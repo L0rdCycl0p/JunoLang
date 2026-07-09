@@ -12,7 +12,6 @@ pub type TypeId = u32;
 // Program
 // =======================
 
-
 #[derive(Debug, Clone)]
 pub struct MetaStruct {
     pub id: TypeId,
@@ -191,10 +190,7 @@ pub enum MetaType {
     Pointer(Box<MetaType>),
     Reference(Box<MetaType>),
 
-    Array {
-        elem: Box<MetaType>,
-        size: u32,
-    },
+    Array { elem: Box<MetaType>, size: u32 },
 
     Unit,
 }

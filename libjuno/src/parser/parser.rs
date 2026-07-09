@@ -1,8 +1,8 @@
-use pest::error::{ Error, ErrorVariant, InputLocation };
+use pest::error::{Error, ErrorVariant, InputLocation};
 use pest::iterators::Pair;
 
-use crate::*;
 use crate::ast::*;
+use crate::*;
 type JunoPair<'a> = Pair<'a, Rule>;
 
 pub fn parse_program(_pair: Pair<Rule>) -> Result<Program, Error<Rule>> {
@@ -20,14 +20,12 @@ pub fn parse_program(_pair: Pair<Rule>) -> Result<Program, Error<Rule>> {
             }
             Rule::EOI => {}
             other => {
-                return Err(
-                    Error::new_from_span(
-                        ErrorVariant::CustomError {
-                            message: format!("unexpected rule in program: {:?}", other),
-                        },
-                        pair.as_span()
-                    )
-                );
+                return Err(Error::new_from_span(
+                    ErrorVariant::CustomError {
+                        message: format!("unexpected rule in program: {:?}", other),
+                    },
+                    pair.as_span(),
+                ));
             }
         }
     }
@@ -38,25 +36,22 @@ pub fn parse_program(_pair: Pair<Rule>) -> Result<Program, Error<Rule>> {
 fn parse_item(pair: JunoPair) -> Result<Item, Error<Rule>> {
     let p = pair.clone().into_inner().last().expect("Error");
     match p.as_rule() {
-        Rule::function => {
-            match parse_function(p) {
-                Ok(f) => Ok(Item::Function(f)),
-                Err(e) => Err(e),
-            }
-        }
-        Rule::import_stmt => {
-            match parse_import(p) {
-                Ok(i) => Ok(Item::Import(i)),
-                Err(e) => Err(e),
-            }
-        }
-        Rule::struct_def => {
-            match parse_struct(p) {
-                Ok(i) => Ok(Item::Struct(i)),
-                Err(e) => Err(e),
-            }
-        }
-        other => panic!("unhandled rule in pair: {:#?}, parse_item: {:?}", pair, other),
+        Rule::function => match parse_function(p) {
+            Ok(f) => Ok(Item::Function(f)),
+            Err(e) => Err(e),
+        },
+        Rule::import_stmt => match parse_import(p) {
+            Ok(i) => Ok(Item::Import(i)),
+            Err(e) => Err(e),
+        },
+        Rule::struct_def => match parse_struct(p) {
+            Ok(i) => Ok(Item::Struct(i)),
+            Err(e) => Err(e),
+        },
+        other => panic!(
+            "unhandled rule in pair: {:#?}, parse_item: {:?}",
+            pair, other
+        ),
     }
 }
 
@@ -138,14 +133,12 @@ fn parse_stmt(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
     match inner.as_rule() {
         Rule::let_stmt => parse_let(inner),
         Rule::assign_stmt => parse_assign_stmt(inner),
-        Rule::expr_stmt => {
-            match parse_expr(inner.into_inner().next().unwrap()) {
-                Ok(e) => Ok(Stmt::Expr(e)),
-                Err(e) => {
-                    return Err(e);
-                }
+        Rule::expr_stmt => match parse_expr(inner.into_inner().next().unwrap()) {
+            Ok(e) => Ok(Stmt::Expr(e)),
+            Err(e) => {
+                return Err(e);
             }
-        }
+        },
         Rule::return_stmt => {
             let i = match inner.into_inner().next().map(parse_expr) {
                 None => None,
@@ -192,14 +185,12 @@ fn parse_if(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
         }
     }
 
-    Ok(
-        Stmt::If(IfStmt {
-            condition,
-            then_block,
-            else_ifs,
-            else_block,
-        })
-    )
+    Ok(Stmt::If(IfStmt {
+        condition,
+        then_block,
+        else_ifs,
+        else_block,
+    }))
 }
 fn parse_while(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
     let mut inner = pair.into_inner();
@@ -207,12 +198,7 @@ fn parse_while(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
     let condition = parse_expr(inner.next().unwrap())?;
     let body = parse_block(inner.next().unwrap())?;
 
-    Ok(
-        Stmt::While(WhileStmt {
-            condition,
-            body,
-        })
-    )
+    Ok(Stmt::While(WhileStmt { condition, body }))
 }
 fn parse_loop(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
     let mut inner = pair.into_inner();
@@ -228,13 +214,7 @@ fn parse_for(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
     let iter = parse_expr(inner.next().unwrap())?;
     let body = parse_block(inner.next().unwrap())?;
 
-    Ok(
-        Stmt::For(ForStmt {
-            init,
-            iter,
-            body,
-        })
-    )
+    Ok(Stmt::For(ForStmt { init, iter, body }))
 }
 
 fn parse_array(pair: Pair<Rule>) -> Result<Expr, Error<Rule>> {
@@ -256,8 +236,15 @@ fn parse_primary(pair: JunoPair) -> Result<Expr, Error<Rule>> {
         Rule::expr => parse_expr(first),
 
         Rule::number => Ok(Expr::Number(match first.as_str().parse() {
-            Err(e) => return Err(Error::new_from_span(ErrorVariant::CustomError { message: format!("{}", e) }, first.as_span())),
-            Ok(n) => n
+            Err(e) => {
+                return Err(Error::new_from_span(
+                    ErrorVariant::CustomError {
+                        message: format!("{}", e),
+                    },
+                    first.as_span(),
+                ));
+            }
+            Ok(n) => n,
         })),
 
         Rule::boolean => Ok(Expr::Boolean(first.as_str() == "true")),
@@ -274,15 +261,12 @@ fn parse_primary(pair: JunoPair) -> Result<Expr, Error<Rule>> {
 
         Rule::struct_init => parse_struct_init(first),
 
-        other =>
-            Err(
-                Error::new_from_span(
-                    ErrorVariant::CustomError {
-                        message: format!("unexpected primary: {:?}", other),
-                    },
-                    first.as_span()
-                )
-            ),
+        other => Err(Error::new_from_span(
+            ErrorVariant::CustomError {
+                message: format!("unexpected primary: {:?}", other),
+            },
+            first.as_span(),
+        )),
     }
 }
 fn parse_string(pair: JunoPair) -> Result<Expr, Error<Rule>> {
@@ -322,27 +306,30 @@ fn parse_let(pair: JunoPair) -> Result<Stmt, Error<Rule>> {
     let ty = parse_type(inner.next().unwrap())?;
     let value = match inner.next().map(parse_expr) {
         None => None,
-        Some(a) =>
-            match a {
-                Err(e) => {
-                    return Err(e);
-                }
-                Ok(v) => Some(v),
+        Some(a) => match a {
+            Err(e) => {
+                return Err(e);
             }
+            Ok(v) => Some(v),
+        },
     };
 
-    Ok(
-        Stmt::Let(LetStmt {
-            mutable,
-            name,
-            ty,
-            value,
-        })
-    )
+    Ok(Stmt::Let(LetStmt {
+        mutable,
+        name,
+        ty,
+        value,
+    }))
 }
 
 fn parse_expr(pair: JunoPair) -> Result<Expr, Error<Rule>> {
-    let inner = pair.into_inner().next().unwrap().into_inner().next().unwrap();
+    let inner = pair
+        .into_inner()
+        .next()
+        .unwrap()
+        .into_inner()
+        .next()
+        .unwrap();
 
     match inner.as_rule() {
         Rule::logical => parse_logical(inner),
@@ -371,18 +358,18 @@ fn parse_call(pair: Pair<Rule>) -> Result<Expr, Error<Rule>> {
 
             match inner.as_rule() {
                 Rule::positional_arg => {
-                    args.push(Arg::Positional(parse_expr(inner.into_inner().next().unwrap())?));
+                    args.push(Arg::Positional(parse_expr(
+                        inner.into_inner().next().unwrap(),
+                    )?));
                 }
 
                 Rule::named_arg => {
                     let mut i = inner.into_inner();
 
-                    args.push(
-                        Arg::Named(
-                            clean_ident(i.next().unwrap().as_str()),
-                            parse_expr(i.next().unwrap())?
-                        )
-                    );
+                    args.push(Arg::Named(
+                        clean_ident(i.next().unwrap().as_str()),
+                        parse_expr(i.next().unwrap())?,
+                    ));
                 }
 
                 _ => unreachable!(),
@@ -472,12 +459,7 @@ fn parse_assign_stmt(pair: Pair<Rule>) -> Result<Stmt, Error<Rule>> {
     let name = clean_ident(inner.next().unwrap().as_str());
     let value = parse_expr(inner.next().expect("ERROR"))?;
 
-    Ok(
-        Stmt::AssignStmt(AssignStmt {
-            name,
-            value,
-        })
-    )
+    Ok(Stmt::AssignStmt(AssignStmt { name, value }))
 }
 
 fn parse_unary_op(pair: Pair<Rule>) -> Result<UnOp, Error<Rule>> {
@@ -486,13 +468,12 @@ fn parse_unary_op(pair: Pair<Rule>) -> Result<UnOp, Error<Rule>> {
         "*" => Ok(UnOp::Deref),
         "!" => Ok(UnOp::Not),
         "-" => Ok(UnOp::Neg),
-        other =>
-            Err(
-                Error::new_from_span(
-                    ErrorVariant::CustomError { message: format!("unknown unary op: {}", other) },
-                    pair.as_span()
-                )
-            ),
+        other => Err(Error::new_from_span(
+            ErrorVariant::CustomError {
+                message: format!("unknown unary op: {}", other),
+            },
+            pair.as_span(),
+        )),
     }
 }
 fn parse_comparison(pair: Pair<Rule>) -> Result<Expr, Error<Rule>> {
@@ -557,7 +538,7 @@ fn parse_base_type(pair: Pair<Rule>) -> Result<Type, Error<Rule>> {
             })
         }
 
-        Rule::var_ident => { Ok(Type::Named(clean_ident(first.as_str()))) }
+        Rule::var_ident => Ok(Type::Named(clean_ident(first.as_str()))),
 
         _ => unreachable!(),
     }

@@ -1,6 +1,6 @@
-use phf_macros::phf_map;
-use crate::*;
 use crate::SymbolId;
+use crate::*;
+use phf_macros::phf_map;
 
 pub struct Builtin {
     pub id: SymbolId,
@@ -14,10 +14,7 @@ pub enum BuiltinEnum {
     },
 }
 
-pub const REGISTRY: phf::Map<
-    &'static str,
-    Builtin
-> = phf_map! {
+pub const REGISTRY: phf::Map<&'static str, Builtin> = phf_map! {
     "printf" => Builtin {
         id: 0,
         declare: BuiltinEnum::Function {

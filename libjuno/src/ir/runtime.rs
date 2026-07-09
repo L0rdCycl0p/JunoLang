@@ -1,14 +1,5 @@
-
 use super::*;
 
 impl<'ctx> LLVMBackend<'ctx> {
-
-    pub fn declare_runtime(
-        &mut self,
-    ) {
-
-
-
-    }
-
+    pub fn declare_runtime(&mut self) {}
 }

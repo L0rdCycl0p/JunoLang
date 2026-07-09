@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-use inkwell::{
-    types::BasicTypeEnum,
-    values::PointerValue,
-};
+use inkwell::{types::BasicTypeEnum, values::PointerValue};
 
 pub struct Variable<'ctx> {
     pub ptr: PointerValue<'ctx>,
@@ -21,25 +18,11 @@ impl<'ctx> Scope<'ctx> {
         }
     }
 
-    pub fn insert(
-        &mut self,
-        id: u32,
-        ptr: PointerValue<'ctx>,
-        ty: BasicTypeEnum<'ctx>,
-    ) {
-        self.variables.insert(
-            id,
-            Variable {
-                ptr,
-                ty,
-            },
-        );
+    pub fn insert(&mut self, id: u32, ptr: PointerValue<'ctx>, ty: BasicTypeEnum<'ctx>) {
+        self.variables.insert(id, Variable { ptr, ty });
     }
 
-    pub fn get(
-        &self,
-        id: u32,
-    ) -> Option<&Variable<'ctx>> {
+    pub fn get(&self, id: u32) -> Option<&Variable<'ctx>> {
         self.variables.get(&id)
     }
 }

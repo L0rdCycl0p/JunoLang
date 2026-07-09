@@ -33,5 +33,4 @@ impl<'a> MetaIRGen<'a> {
         let name = &self.symbol_list.get(id as usize).unwrap_or(&binding);
         panic!("unknown local variable '{}'", name);
     }
-    
 }

@@ -2,9 +2,9 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use tower_lsp::{ jsonrpc::Result, lsp_types::* };
-use libjuno::{ BuiltinEnum, REGISTRY };
 use crate::backend::Backend;
+use libjuno::{BuiltinEnum, REGISTRY};
+use tower_lsp::{jsonrpc::Result, lsp_types::*};
 
 pub(super) fn snippets() -> Vec<CompletionItem> {
     vec![
@@ -87,7 +87,7 @@ pub(super) fn snippets() -> Vec<CompletionItem> {
             insert_text_format: Some(InsertTextFormat::SNIPPET),
             detail: Some("else".into()),
             ..Default::default()
-        }
+        },
     ]
 }
 pub(super) fn builtins() -> Vec<CompletionItem> {
@@ -95,7 +95,10 @@ pub(super) fn builtins() -> Vec<CompletionItem> {
 
     for (name, i) in REGISTRY.entries().into_iter() {
         items.push(match i.declare {
-            BuiltinEnum::Function { param_types, return_type: _ } => {
+            BuiltinEnum::Function {
+                param_types,
+                return_type: _,
+            } => {
                 let param_len = param_types.unwrap_or(&[]).len();
                 let mut param_text_v = vec![];
                 for p in 0..param_len {
@@ -134,7 +137,6 @@ pub(super) fn keywords() -> Vec<CompletionItem> {
             detail: Some("Loop".into()),
             ..Default::default()
         },
-
         CompletionItem {
             label: "let".into(),
             kind: Some(CompletionItemKind::KEYWORD),
@@ -195,12 +197,11 @@ pub(super) fn keywords() -> Vec<CompletionItem> {
             detail: Some("Import".into()),
             ..Default::default()
         },
-
         CompletionItem {
             label: "struct".into(),
             kind: Some(CompletionItemKind::KEYWORD),
             detail: Some("Struct".into()),
             ..Default::default()
-        }
+        },
     ]
 }

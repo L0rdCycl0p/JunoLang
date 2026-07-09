@@ -4,19 +4,11 @@
 
 use pest::error::ErrorVariant;
 
-use crate::{
-    diagnostics::DiagnosticRule,
-    Rule,
-};
+use crate::{Rule, diagnostics::DiagnosticRule};
 
-pub fn classify(
-    error: &pest::error::Error<Rule>,
-) -> DiagnosticRule {
-
+pub fn classify(error: &pest::error::Error<Rule>) -> DiagnosticRule {
     match &error.variant {
-
         ErrorVariant::ParsingError { positives, .. } => {
-
             if positives.contains(&Rule::ident) {
                 return DiagnosticRule::MissingIdentifier;
             }
@@ -32,8 +24,6 @@ pub fn classify(
             DiagnosticRule::Unknown
         }
 
-        ErrorVariant::CustomError { .. } => {
-            DiagnosticRule::Unknown
-        }
+        ErrorVariant::CustomError { .. } => DiagnosticRule::Unknown,
     }
 }

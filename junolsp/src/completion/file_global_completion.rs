@@ -2,22 +2,22 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use libjuno::ast::{ Function, Item };
+use libjuno::ast::{Function, Item};
 use tower_lsp::{
     jsonrpc::Error,
-    lsp_types::{ CompletionItem, CompletionItemKind, CompletionParams, InsertTextFormat },
+    lsp_types::{CompletionItem, CompletionItemKind, CompletionParams, InsertTextFormat},
 };
 
 use crate::backend::Backend;
 
 pub(super) async fn file_global_completion(
     backend: &Backend,
-    params: CompletionParams
+    params: CompletionParams,
 ) -> Result<Vec<CompletionItem>, Error> {
     let mut items = vec![];
     let program = match super::get_program(backend, params) {
         Ok(p) => p,
-        Err(_e) => return Ok(vec![])
+        Err(_e) => return Ok(vec![]),
     }; // TODO
 
     for i in program.items {
@@ -41,19 +41,17 @@ fn create_completion_for_function<'a>(function: Function, items: &mut Vec<Comple
         param_text_v.push(format!("${{{}}}", p + 1));
     }
     let param_text = param_text_v.join(", ");
-    items.push(
-        create_completion_for_ident(
-            function.name.clone(),
-            format!("{}({});", function.name, param_text),
-            CompletionItemKind::FUNCTION
-        )
-    );
+    items.push(create_completion_for_ident(
+        function.name.clone(),
+        format!("{}({});", function.name, param_text),
+        CompletionItemKind::FUNCTION,
+    ));
 }
 
 fn create_completion_for_ident(
     ident: String,
     insert_text: String,
-    kind: CompletionItemKind
+    kind: CompletionItemKind,
 ) -> CompletionItem {
     CompletionItem {
         label: ident.clone(),

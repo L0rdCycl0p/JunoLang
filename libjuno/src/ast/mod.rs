@@ -188,15 +188,9 @@ pub enum Type {
     Pointer(Box<Type>),
     Reference(Box<Type>),
 
-    Array {
-        elem: Box<Type>,
-        size: u32,
-    },
+    Array { elem: Box<Type>, size: u32 },
 
-    Generic {
-        base: String,
-        args: Vec<Type>,
-    },
+    Generic { base: String, args: Vec<Type> },
 }
 
 pub type FilePath = String;
