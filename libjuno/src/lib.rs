@@ -16,7 +16,8 @@ pub use parser::parse_program;
 pub mod metair;
 #[cfg(feature = "metair")]
 pub use metair::*;
-
+#[cfg(feature = "metair")]
+pub mod get_symbols;
 #[cfg(feature = "irgen")]
 pub mod ir;
 #[cfg(feature = "irgen")]
@@ -41,7 +42,7 @@ pub use phf;
 // IDs
 // =======================
 
-pub type SymbolId = u32;
+pub type SymbolId = String;
 pub type StringId = u32;
-pub type FunctionId = u32;
-pub type TypeId = u32;
+pub type FunctionId = String;
+pub type TypeId = String;

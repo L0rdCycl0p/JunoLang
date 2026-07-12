@@ -1,0 +1,15 @@
+
+fn exit_code() -> i32 {
+    return 0;
+}
+
+fn hello_world() -> i32 {
+    printf("hello world\n");
+    return 0;
+}
+
+fn main() -> i32 {
+    hello_world();
+    return exit_code();
+}
+

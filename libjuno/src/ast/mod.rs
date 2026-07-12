@@ -22,6 +22,7 @@ pub struct Import {
 #[derive(Debug, Clone)]
 pub struct Function {
     pub name: String,
+    pub raw_name: String,
     pub params: Vec<Param>,
     pub return_type: Option<Type>,
     pub body: Block,
@@ -107,7 +108,7 @@ pub enum Expr {
 }
 #[derive(Debug, Clone)]
 pub struct Call {
-    pub target: Vec<String>,
+    pub target: String,
     pub args: Vec<Arg>,
 }
 
