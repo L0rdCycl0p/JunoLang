@@ -16,7 +16,8 @@ pub use parser::parse_program;
 pub mod metair;
 #[cfg(feature = "metair")]
 pub use metair::*;
-
+#[cfg(feature = "metair")]
+pub mod get_symbols;
 #[cfg(feature = "irgen")]
 pub mod ir;
 #[cfg(feature = "irgen")]

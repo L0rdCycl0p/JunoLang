@@ -48,7 +48,7 @@ fn main() {
 
         let mut o = match ext {
             "juno" => JunoObject {
-                module: compile_file(Path::new(&file)),
+                module: compile_file(Path::new(&file), None),
                 filename: file,
             },
             _ => panic!("Unknown input filetyp: {}", ext),

@@ -176,13 +176,15 @@ impl<'a> MetaIRGen<'a> {
 
         self.locals.pop();
 
-        MetaFunction {
+        let f = MetaFunction {
             id,
             name,
             params,
             ret,
             body,
-        }
+        };
+        dbg!(&f);
+        f
     }
 
     // =======================
@@ -403,8 +405,9 @@ impl<'a> MetaIRGen<'a> {
             }
 
             Expr::Call(c) => {
+                dbg!(&c.target);
                 let target: Vec<_> = c.target.iter().map(|s| self.intern_symbol(s)).collect();
-
+                dbg!(&target);
                 let args: Vec<_> = c
                     .args
                     .iter()
