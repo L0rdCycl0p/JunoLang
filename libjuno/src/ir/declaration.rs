@@ -7,7 +7,6 @@ use super::*;
 use inkwell::types::BasicMetadataTypeEnum;
 
 impl<'ctx> LLVMBackend<'ctx> {
-
     pub fn lower_declaration(&mut self, declaration: &MetaDeclaration) -> Result<(), LLVMError> {
         let mut params = Vec::<BasicMetadataTypeEnum>::new();
 
@@ -25,7 +24,8 @@ impl<'ctx> LLVMBackend<'ctx> {
             .module
             .add_function(declaration.name.as_str(), fn_type, None);
         self.add_function(declaration.name.clone(), &llvm_declaration);
-        self.functions.insert(declaration.name.clone(), llvm_declaration);
+        self.functions
+            .insert(declaration.name.clone(), llvm_declaration);
         Ok(())
     }
 }

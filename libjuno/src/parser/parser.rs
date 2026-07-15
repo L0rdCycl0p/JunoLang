@@ -85,7 +85,7 @@ impl JunoASTParser {
             },
             Rule::declaration => match self.parse_declaration(p) {
                 Ok(d) => Ok(Item::Declaration(d)),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             },
             other => panic!(
                 "unhandled rule in pair: {:#?}, parse_item: {:?}",
@@ -138,7 +138,8 @@ impl JunoASTParser {
         unreachable!()
     }
 
-    fn parse_declaration(&mut self, pair: JunoPair) -> Result<Declaration, Error<Rule>> { // decl test(param1: i32, param2: i32) -> i32;
+    fn parse_declaration(&mut self, pair: JunoPair) -> Result<Declaration, Error<Rule>> {
+        // decl test(param1: i32, param2: i32) -> i32;
         let mut inner = pair.into_inner();
 
         let name = self.clean_ident(inner.next().unwrap().as_str());
@@ -151,8 +152,12 @@ impl JunoASTParser {
                     params = self.parse_params(p)?;
                 }
                 Rule::type_ => {
-                    let declaration = Declaration { name, params, return_type: Some(self.parse_type(p)?)};
-                    return Ok(declaration)
+                    let declaration = Declaration {
+                        name,
+                        params,
+                        return_type: Some(self.parse_type(p)?),
+                    };
+                    return Ok(declaration);
                 }
                 _ => {}
             }

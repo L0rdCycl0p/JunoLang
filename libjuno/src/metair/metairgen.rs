@@ -453,15 +453,16 @@ impl<'a> MetaIRGen<'a> {
                     None => {
                         let builtin = builtin_registry::get_builtin(target.as_str());
                         match builtin {
-                            None => {
-                                match self.declarations.entry(target.clone()) {
-                                    Entry::Occupied(occupied) => {
-                                        let value : &mut MetaDeclaration = occupied.into_mut();
-                                        value.ret.clone().unwrap_or(MetaType::Named("void".to_string()))
-                                    }
-                                    Entry::Vacant(vacant) => todo!(),
+                            None => match self.declarations.entry(target.clone()) {
+                                Entry::Occupied(occupied) => {
+                                    let value: &mut MetaDeclaration = occupied.into_mut();
+                                    value
+                                        .ret
+                                        .clone()
+                                        .unwrap_or(MetaType::Named("void".to_string()))
                                 }
-                            }
+                                Entry::Vacant(vacant) => todo!(),
+                            },
                             Some(b) => {
                                 match &b.declare {
                                     builtin_registry::BuiltinEnum::Function {

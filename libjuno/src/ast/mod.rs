@@ -12,7 +12,7 @@ pub enum Item {
     Function(Function),
     Import(Import),
     Struct(StructDef),
-    Declaration(Declaration)
+    Declaration(Declaration),
 }
 
 #[derive(Debug, Clone)]

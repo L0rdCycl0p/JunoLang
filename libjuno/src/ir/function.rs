@@ -11,12 +11,11 @@ impl<'ctx> LLVMBackend<'ctx> {
         for (declaration_name, declaration) in &self.program.declarations {
             self.lower_declaration(declaration)?;
         }
-        
+
         for (function_name, function) in &self.program.functions {
             self.declare_function(function)?;
             self.lower_function(function)?;
         }
-        
 
         Ok(())
     }
