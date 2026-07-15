@@ -44,7 +44,6 @@ pub fn path_to_namespace(p: &Path, pkg_name: Option<String>) -> String {
         None => "__main".to_string(),
         Some(n) => n,
     };
-    dbg!(p);
     if p.is_relative() {
         let juno_root = p.parent().unwrap().parent().unwrap(); // ./src/path/to/file.juno -> .
         if juno_root.join("juno.toml").exists() {
@@ -53,7 +52,7 @@ pub fn path_to_namespace(p: &Path, pkg_name: Option<String>) -> String {
             let mut components = p.components(); // ./src/path/to/file.juno -> src, path, to, file.juno
             components.next(); // src, path, to, file.juno -> path, to, file.juno
             return format!(
-                "j::{}::{}",
+                "{}::{}",
                 pkg_name,
                 components
                     .collect::<Vec<Component>>()

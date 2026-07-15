@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::hash::Hash;
+use std::ops::Deref;
 
 use crate::metair::metair::*;
 use crate::{ast::*, builtin_registry, get_builtin_id, is_builtin};
@@ -13,7 +15,7 @@ pub struct MetaIRGen<'a> {
     pub symbols: HashMap<String, SymbolId>,
     pub struct_fields: HashMap<SymbolId, HashMap<String, u32>>, // struct_id => {field_name1 => field_id1, ...}
     pub strings: HashMap<String, StringId>,
-
+    pub declarations: HashMap<String, MetaDeclaration>,
     pub symbol_list: Vec<String>,
     pub string_list: Vec<String>,
     pub locals: Vec<HashMap<SymbolId, MetaType>>,
@@ -35,6 +37,7 @@ impl<'a> MetaIRGen<'a> {
     pub fn new(p: &'a Program) -> Self {
         Self {
             program: p,
+            declarations: HashMap::new(),
             locals: Vec::new(),
             symbols: HashMap::new(),
             struct_fields: HashMap::new(),
@@ -102,7 +105,7 @@ impl<'a> MetaIRGen<'a> {
         self.program = p;
         let mut functions = HashMap::new();
         let mut structs = HashMap::new();
-
+        let mut declarations = HashMap::new();
         for item in &p.items {
             match item {
                 Item::Function(f) => {
@@ -114,6 +117,9 @@ impl<'a> MetaIRGen<'a> {
                 }
 
                 Item::Import(_) => {}
+                Item::Declaration(d) => {
+                    declarations.insert(d.name.clone(), self.lower_declaration(d));
+                }
             }
         }
         let struct_fields: HashMap<SymbolId, Vec<String>> =
@@ -129,6 +135,7 @@ impl<'a> MetaIRGen<'a> {
         MetaProgram {
             functions,
             structs,
+            declarations,
             string_table: self.string_list.clone(),
             symbol_table: self.symbol_list.clone(),
             struct_fields: struct_fields,
@@ -161,7 +168,14 @@ impl<'a> MetaIRGen<'a> {
         }
 
         let ret = f.return_type.as_ref().map(|t| self.lower_type(t));
-
+        self.declarations.insert(
+            name.clone(),
+            MetaDeclaration {
+                name: name.clone(),
+                params: params.clone(),
+                ret: ret.clone(),
+            },
+        );
         let body = self.lower_block(&f.body);
 
         self.locals.pop();
@@ -172,7 +186,39 @@ impl<'a> MetaIRGen<'a> {
             ret,
             body,
         };
-        dbg!(&f);
+        f
+    }
+
+    fn lower_declaration(&mut self, f: &Declaration) -> MetaDeclaration {
+        let id = self.next_func;
+        self.next_func += 1;
+
+        self.locals.push(HashMap::new());
+
+        let name = self.intern_symbol(&f.name);
+
+        let mut params = Vec::new();
+
+        for p in &f.params {
+            let sym = self.intern_symbol(&p.name);
+            let ty = self.lower_type(&p.ty);
+
+            self.locals
+                .last_mut()
+                .unwrap()
+                .insert(sym.clone(), ty.clone());
+
+            params.push(MetaParam { name: sym, ty });
+        }
+
+        let ret = f.return_type.as_ref().map(|t| self.lower_type(t));
+
+        let f = MetaDeclaration {
+            name: name.clone(),
+            params,
+            ret,
+        };
+        self.declarations.insert(name, f.clone());
         f
     }
 
@@ -390,9 +436,7 @@ impl<'a> MetaIRGen<'a> {
             }
 
             Expr::Call(c) => {
-                dbg!(&c.target);
                 let target: SymbolId = c.target.clone();
-                dbg!(&target);
                 let args: Vec<_> = c
                     .args
                     .iter()
@@ -410,7 +454,13 @@ impl<'a> MetaIRGen<'a> {
                         let builtin = builtin_registry::get_builtin(target.as_str());
                         match builtin {
                             None => {
-                                todo!()
+                                match self.declarations.entry(target.clone()) {
+                                    Entry::Occupied(occupied) => {
+                                        let value : &mut MetaDeclaration = occupied.into_mut();
+                                        value.ret.clone().unwrap_or(MetaType::Named("void".to_string()))
+                                    }
+                                    Entry::Vacant(vacant) => todo!(),
+                                }
                             }
                             Some(b) => {
                                 match &b.declare {

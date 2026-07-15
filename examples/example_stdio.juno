@@ -1,4 +1,6 @@
+import ./library.juno;
 
+decl library::add(a: i32, b: i32) -> i32; // note, use junocc examples/example_stdio.juno examples/library.juno -o output
 
 fn main() -> i32 {
     printf("hello from %s\n", "printf");
@@ -16,5 +18,7 @@ fn main() -> i32 {
         printf("you entered: %s\n", &input);
     }
     printf("exit loop succesfully\n");
+    let added_number: i32 = library::add(1,2);
+    printf("library add: %d\n", added_number);
     return 0;
 }

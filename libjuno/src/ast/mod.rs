@@ -12,6 +12,7 @@ pub enum Item {
     Function(Function),
     Import(Import),
     Struct(StructDef),
+    Declaration(Declaration)
 }
 
 #[derive(Debug, Clone)]
@@ -26,6 +27,12 @@ pub struct Function {
     pub params: Vec<Param>,
     pub return_type: Option<Type>,
     pub body: Block,
+}
+#[derive(Debug, Clone)]
+pub struct Declaration {
+    pub name: String,
+    pub params: Vec<Param>,
+    pub return_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]

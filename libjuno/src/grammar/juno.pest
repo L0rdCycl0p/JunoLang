@@ -2,7 +2,7 @@ WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
 COMMENT = _{ "//" ~ (!"\n" ~ ANY)* }
 program = { SOI ~ item* ~ EOI }
 
-item = { function | import_stmt | struct_def }
+item = { function | import_stmt | struct_def | declaration }
 
 /* =========================
    IMPORT
@@ -27,6 +27,14 @@ params = { param ~ ("," ~ param)* }
 param = { ident ~ ":" ~ type_ }
 
 block = { "{" ~ stmt* ~ "}" }
+
+declaration = {
+    "decl" ~ declaration_ident
+    ~ "(" ~ params? ~ ")"
+    ~ ( "->" ~ type_ )?
+    ~ ";"
+}
+declaration_ident = {ident ~ ("::" ~ ident)*}
 
 /* =========================
    STATEMENTS
@@ -275,5 +283,6 @@ KEYWORD = {
     | "break"
     | "continue"
     | "import"
+    | "decl"
 }
 

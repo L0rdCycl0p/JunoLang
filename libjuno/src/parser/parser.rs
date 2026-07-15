@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::format;
+use std::hash::Hash;
 use std::mem::take;
 
 use pest::error::{Error, ErrorVariant, InputLocation};
@@ -82,6 +83,10 @@ impl JunoASTParser {
                 Ok(i) => Ok(Item::Struct(i)),
                 Err(e) => Err(e),
             },
+            Rule::declaration => match self.parse_declaration(p) {
+                Ok(d) => Ok(Item::Declaration(d)),
+                Err(e) => Err(e)
+            },
             other => panic!(
                 "unhandled rule in pair: {:#?}, parse_item: {:?}",
                 pair, other
@@ -105,7 +110,6 @@ impl JunoASTParser {
         if raw_name == "main".to_string() {
             name = "main".to_string();
         }
-        dbg!(&name);
         let mut params = vec![];
         let mut return_type = None;
 
@@ -126,6 +130,29 @@ impl JunoASTParser {
                         return_type,
                         body,
                     });
+                }
+                _ => {}
+            }
+        }
+
+        unreachable!()
+    }
+
+    fn parse_declaration(&mut self, pair: JunoPair) -> Result<Declaration, Error<Rule>> { // decl test(param1: i32, param2: i32) -> i32;
+        let mut inner = pair.into_inner();
+
+        let name = self.clean_ident(inner.next().unwrap().as_str());
+
+        let mut params = vec![];
+
+        for p in inner.by_ref() {
+            match p.as_rule() {
+                Rule::params => {
+                    params = self.parse_params(p)?;
+                }
+                Rule::type_ => {
+                    let declaration = Declaration { name, params, return_type: Some(self.parse_type(p)?)};
+                    return Ok(declaration)
                 }
                 _ => {}
             }

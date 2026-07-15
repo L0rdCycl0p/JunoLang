@@ -177,7 +177,6 @@ impl<'ctx> LLVMBackend<'ctx> {
         args: &[MetaArg],
     ) -> Result<Option<BasicValueEnum<'ctx>>, LLVMError> {
         let function = self.get_function(target)?;
-        dbg!(function);
         let mut llvm_args = Vec::new();
 
         for arg in args {

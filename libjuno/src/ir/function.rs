@@ -8,10 +8,15 @@ use inkwell::types::BasicMetadataTypeEnum;
 
 impl<'ctx> LLVMBackend<'ctx> {
     pub fn lower_program(&mut self) -> Result<(), LLVMError> {
+        for (declaration_name, declaration) in &self.program.declarations {
+            self.lower_declaration(declaration)?;
+        }
+        
         for (function_name, function) in &self.program.functions {
             self.declare_function(function)?;
             self.lower_function(function)?;
         }
+        
 
         Ok(())
     }

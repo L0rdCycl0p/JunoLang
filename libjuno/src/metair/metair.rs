@@ -27,6 +27,7 @@ pub struct MetaField {
 #[derive(Debug, Clone)]
 pub struct MetaProgram {
     pub functions: HashMap<SymbolId, MetaFunction>,
+    pub declarations: HashMap<SymbolId, MetaDeclaration>,
     pub structs: HashMap<SymbolId, MetaStruct>,
     pub struct_fields: HashMap<SymbolId, Vec<String>>,
     pub string_table: Vec<String>,
@@ -43,6 +44,13 @@ pub struct MetaFunction {
     pub params: Vec<MetaParam>,
     pub ret: Option<MetaType>,
     pub body: Vec<MetaStmt>,
+}
+
+#[derive(Debug, Clone)]
+pub struct MetaDeclaration {
+    pub name: SymbolId,
+    pub params: Vec<MetaParam>,
+    pub ret: Option<MetaType>,
 }
 
 #[derive(Debug, Clone)]
