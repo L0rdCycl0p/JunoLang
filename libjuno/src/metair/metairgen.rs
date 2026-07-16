@@ -3,8 +3,12 @@ use std::collections::hash_map::Entry;
 use std::hash::Hash;
 use std::ops::Deref;
 
+use pest::Parser;
+use pest::iterators::Pair;
+
 use crate::metair::metair::*;
-use crate::{ast::*, builtin_registry, get_builtin_id, is_builtin};
+use crate::parser::JunoASTParser;
+use crate::{JunoParser, Rule, ast::*, builtin_registry, get_builtin_id, is_builtin};
 
 // =======================
 // Generator State
@@ -468,7 +472,12 @@ impl<'a> MetaIRGen<'a> {
                                     builtin_registry::BuiltinEnum::Function {
                                         param_types: _,
                                         return_type,
-                                    } => self.lower_type(&Type::Named(return_type.to_string())), //_ => panic!("Function not declared: {}", target_name) // unreachable
+                                    } => {
+                                        let ty_pair : Vec<Pair<Rule>>= JunoParser::parse(Rule::type_, return_type).unwrap().collect();
+                                        let mut ast_parser = JunoASTParser::new("_".to_string());
+                                        let ast_ty = ast_parser.parse_type(ty_pair.first().unwrap().clone()).unwrap();
+                                        self.lower_type(&ast_ty)
+                                }, //_ => panic!("Function not declared: {}", target_name) // unreachable
                                 }
                             }
                         }

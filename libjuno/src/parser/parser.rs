@@ -16,7 +16,7 @@ pub struct JunoASTParser {
     pub functions: HashMap<String, Function>,
 }
 impl JunoASTParser {
-    fn new(namespace: String) -> JunoASTParser {
+    pub fn new(namespace: String) -> JunoASTParser {
         return JunoASTParser {
             functions: HashMap::new(),
             namespace,
@@ -618,7 +618,7 @@ impl JunoASTParser {
             _ => unreachable!(),
         }
     }
-    fn parse_type(&mut self, pair: Pair<Rule>) -> Result<Type, Error<Rule>> {
+    pub fn parse_type(&mut self, pair: Pair<Rule>) -> Result<Type, Error<Rule>> {
         let mut prefixes = Vec::new();
         let mut base = None;
 
