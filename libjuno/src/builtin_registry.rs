@@ -17,21 +17,21 @@ pub const REGISTRY: phf::Map<&'static str, Builtin> = phf_map! {
     "printf" => Builtin {
         declare: BuiltinEnum::Function {
             param_types: None,
-            return_type: "void",
+            return_type: "i32",
         },
     },
 
     "puts" => Builtin {
         declare: BuiltinEnum::Function {
             param_types: Some(&["&u8"]),
-            return_type: "void",
+            return_type: "i32",
         },
     },
 
     "putchar" => Builtin {
         declare: BuiltinEnum::Function {
-            param_types: Some(&["u8"]),
-            return_type: "u8",
+            param_types: Some(&["i32"]),
+            return_type: "i32",
         },
     },
 
@@ -44,7 +44,7 @@ pub const REGISTRY: phf::Map<&'static str, Builtin> = phf_map! {
     "scanf" => Builtin {
         declare: BuiltinEnum::Function {
             param_types: None,
-            return_type: "u8",
+            return_type: "i32",
         },
     },
         "strlen" => Builtin {

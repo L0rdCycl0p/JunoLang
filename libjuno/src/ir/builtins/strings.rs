@@ -14,10 +14,10 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strcmp(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = self.context.i32_type().fn_type(
-            &[ptr.into(), ptr.into()],
-            false,
-        );
+        let ty = self
+            .context
+            .i32_type()
+            .fn_type(&[ptr.into(), ptr.into()], false);
 
         self.declare_builtin("strcmp", ty);
     }
@@ -26,11 +26,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
         let ty = self.context.i32_type().fn_type(
-            &[
-                ptr.into(),
-                ptr.into(),
-                self.context.i64_type().into(),
-            ],
+            &[ptr.into(), ptr.into(), self.context.i64_type().into()],
             false,
         );
 
@@ -40,10 +36,7 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strcpy(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = ptr.fn_type(
-            &[ptr.into(), ptr.into()],
-            false,
-        );
+        let ty = ptr.fn_type(&[ptr.into(), ptr.into()], false);
 
         self.declare_builtin("strcpy", ty);
     }
@@ -52,11 +45,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
         let ty = ptr.fn_type(
-            &[
-                ptr.into(),
-                ptr.into(),
-                self.context.i64_type().into(),
-            ],
+            &[ptr.into(), ptr.into(), self.context.i64_type().into()],
             false,
         );
 
@@ -66,10 +55,7 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strcat(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = ptr.fn_type(
-            &[ptr.into(), ptr.into()],
-            false,
-        );
+        let ty = ptr.fn_type(&[ptr.into(), ptr.into()], false);
 
         self.declare_builtin("strcat", ty);
     }
@@ -78,11 +64,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
         let ty = ptr.fn_type(
-            &[
-                ptr.into(),
-                ptr.into(),
-                self.context.i64_type().into(),
-            ],
+            &[ptr.into(), ptr.into(), self.context.i64_type().into()],
             false,
         );
 
@@ -92,10 +74,7 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strchr(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = ptr.fn_type(
-            &[ptr.into(), self.context.i32_type().into()],
-            false,
-        );
+        let ty = ptr.fn_type(&[ptr.into(), self.context.i32_type().into()], false);
 
         self.declare_builtin("strchr", ty);
     }
@@ -103,10 +82,7 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strrchr(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = ptr.fn_type(
-            &[ptr.into(), self.context.i32_type().into()],
-            false,
-        );
+        let ty = ptr.fn_type(&[ptr.into(), self.context.i32_type().into()], false);
 
         self.declare_builtin("strrchr", ty);
     }
@@ -114,10 +90,7 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strstr(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = ptr.fn_type(
-            &[ptr.into(), ptr.into()],
-            false,
-        );
+        let ty = ptr.fn_type(&[ptr.into(), ptr.into()], false);
 
         self.declare_builtin("strstr", ty);
     }
@@ -125,10 +98,7 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_strtok(&mut self) {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
-        let ty = ptr.fn_type(
-            &[ptr.into(), ptr.into()],
-            false,
-        );
+        let ty = ptr.fn_type(&[ptr.into(), ptr.into()], false);
 
         self.declare_builtin("strtok", ty);
     }

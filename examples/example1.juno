@@ -21,13 +21,13 @@ fn main() -> i32 {
 
     let p: &u8 = strchr(s, 'W');
 
-    if (p != &0) {
+    if (*p != 0) {
         printf("strchr: %s\n", p);
     }
 
     let q: &u8 = strstr(s, "World");
 
-    if (q != &0) {
+    if (*q != 0) {
         printf("strstr: %s\n", q);
     }
 

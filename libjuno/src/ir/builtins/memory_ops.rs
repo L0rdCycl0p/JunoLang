@@ -7,11 +7,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
         let ty = ptr.fn_type(
-            &[
-                ptr.into(),
-                ptr.into(),
-                self.context.i64_type().into(),
-            ],
+            &[ptr.into(), ptr.into(), self.context.i64_type().into()],
             false,
         );
 
@@ -22,11 +18,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
         let ty = ptr.fn_type(
-            &[
-                ptr.into(),
-                ptr.into(),
-                self.context.i64_type().into(),
-            ],
+            &[ptr.into(), ptr.into(), self.context.i64_type().into()],
             false,
         );
 
@@ -52,11 +44,7 @@ impl<'ctx> LLVMBackend<'ctx> {
         let ptr = self.context.ptr_type(AddressSpace::default());
 
         let ty = self.context.i32_type().fn_type(
-            &[
-                ptr.into(),
-                ptr.into(),
-                self.context.i64_type().into(),
-            ],
+            &[ptr.into(), ptr.into(), self.context.i64_type().into()],
             false,
         );
 
