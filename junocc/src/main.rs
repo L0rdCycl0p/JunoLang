@@ -25,6 +25,9 @@ struct Cli {
 
     #[arg(long)]
     bc: bool,
+
+    #[arg(long = "emit-ir")]
+    emit_llvm_ir: bool
 }
 
 struct JunoObject<'a> {
@@ -56,15 +59,16 @@ fn main() {
         optimizer::optimize(&mut o.module);
         objects.push(o);
     }
+    if args.emit_llvm_ir {
+        for o in &objects {
+            o.module.print_to_file(format!("{}.ll", o.filename)).unwrap();
+        }
+    }
     if args.bc {
         for o in &objects {
-            let mut s = DefaultHasher::new();
-
-            o.module.to_string().hash(&mut s);
-            let hash = s.finish();
-
+            dbg!(&format!("./{}.bc", o.filename).to_string());
             o.module.write_bitcode_to_path(Path::new(
-                &format!("./{}-{:x}.bc", o.filename, hash).to_string(),
+                &format!("./{}.bc", o.filename).to_string(),
             ));
         }
     }
@@ -74,11 +78,7 @@ fn main() {
         "elf" => {
             let mut object_paths: Vec<String> = vec![];
             for o in &objects {
-                let mut s = DefaultHasher::new();
-
-                o.module.to_string().hash(&mut s);
-                let hash = s.finish();
-                let path = &format!("./{}-{:x}.o", o.filename, hash).to_string();
+                let path = &format!("./{}.o", o.filename).to_string();
                 let _ = target_machine.write_to_file(
                     &o.module,
                     libjuno::inkwell::targets::FileType::Object,
