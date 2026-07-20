@@ -8,7 +8,7 @@ members = ["libjuno", "junocc", "junolsp"]
 resolver = "3"
 
 [workspace.package]
-version = "0.1.18"
+version = "0.1.19"
 edition = "2024"
 license-file = "LICENSE"
 repository = "https://github.com/L0rdCycl0p/JunoLang"
@@ -20,21 +20,21 @@ categories = ["compilers"]
 [workspace.dependencies]
 
 
-inkwell = { version = "0.9.0", features = ["llvm22-1"] }
-pest = "2.8.6"
-pest_derive = "2.8.6"
-phf = "0.14.0"
-phf_macros = "0.14.0"
-clap = { version = "4.6.1", features = ["derive"] }
-tokio = { version = "1.52.3", features = ["full"] }
-tower-lsp = "0.20.0"
-tracing = "0.1.44"
-tracing-subscriber = "0.3.23"
-url = "2.5.8"
-dashmap = "6.2.1"
-anyhow = "1.0.103"
-miette = { version = "7.6.0", features = ["fancy"] }
+inkwell = { version = "0.9", features = ["llvm22-1"] }
+pest = "2.8"
+pest_derive = "2.8"
+phf = "0.14"
+phf_macros = "0.14"
+clap = { version = "4.6", features = ["derive"] }
+tokio = { version = "1.52", features = ["full"] }
+tower-lsp = "0.20"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+url = "2"
+dashmap = "6"
+anyhow = "1"
+miette = { version = "7", features = ["fancy"] }
 
 [workspace.dependencies.libjuno]
-version = "0.1.18"
+version = "0.1.19"
 path = "libjuno"
