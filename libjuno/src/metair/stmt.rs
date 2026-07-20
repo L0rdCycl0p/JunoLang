@@ -1,0 +1,133 @@
+use std::collections::HashMap;
+
+use crate::ast::*;
+use crate::metair::generator::MetaIRGen;
+use crate::metair::metair::*;
+
+impl<'a> MetaIRGen<'a> {
+    // =======================
+    // Blocks
+    // =======================
+
+    pub(crate) fn lower_block(
+        &mut self,
+        block: &Block,
+    ) -> (Vec<MetaStmt>, HashMap<String, MetaType>) {
+        self.locals.push(HashMap::new());
+
+        let body = block
+            .stmts
+            .iter()
+            .map(|stmt| self.lower_stmt(stmt))
+            .collect();
+
+        let locals = self.locals.pop().unwrap();
+
+        (body, locals)
+    }
+
+    // =======================
+    // Statements
+    // =======================
+
+    fn lower_stmt(&mut self, stmt: &Stmt) -> MetaStmt {
+        match stmt {
+            Stmt::Let(stmt) => self.lower_let(stmt),
+
+            Stmt::AssignStmt(assign) => MetaStmt::Assign {
+                span: assign.span.clone(),
+                target: assign.name.clone(),
+                value: self.lower_expr(&assign.value),
+            },
+
+            Stmt::Expr(expr) => MetaStmt::Expr(self.lower_expr(expr)),
+
+            Stmt::Return(expr, span) => {
+                MetaStmt::Return(expr.as_ref().map(|e| self.lower_expr(e)), span.clone())
+            }
+
+            Stmt::Break(span) => MetaStmt::Break(span.clone()),
+
+            Stmt::Continue(span) => MetaStmt::Continue(span.clone()),
+
+            Stmt::If(stmt) => MetaStmt::If {
+                span: stmt.span.clone(),
+                cond: self.lower_expr(&stmt.condition),
+
+                then_body: self.lower_block(&stmt.then_block).0,
+
+                else_ifs: stmt
+                    .else_ifs
+                    .iter()
+                    .map(|(cond, body)| (self.lower_expr(cond), self.lower_block(body).0))
+                    .collect(),
+
+                else_body: stmt
+                    .else_block
+                    .as_ref()
+                    .map(|body| self.lower_block(body).0),
+            },
+
+            Stmt::While(stmt) => {
+                let cond = self.lower_expr(&stmt.condition);
+
+                MetaStmt::Loop {
+                    span: stmt.span.clone(),
+                    body: vec![MetaStmt::If {
+                        span: cond.span.clone(),
+
+                        cond: MetaExpr {
+                            span: cond.span.clone(),
+
+                            kind: MetaExprKind::Unary {
+                                span: cond.span.clone(),
+                                op: MetaUnOp::Not,
+                                expr: Box::new(cond.clone()),
+                            },
+
+                            ty: MetaType::Named(
+                                "bool".to_string(),
+                                cond.span.clone(),
+                            ),
+                        },
+
+                        then_body: vec![MetaStmt::Break(stmt.span.clone())],
+
+                        else_ifs: Vec::new(),
+
+                        else_body: Some(self.lower_block(&stmt.body).0),
+                    }],
+                }
+            }
+
+            Stmt::Loop(body) => MetaStmt::Loop {
+                span: body.span.clone(),
+                body: self.lower_block(body).0,
+            },
+
+            Stmt::For(stmt) => {
+                // TODO
+                MetaStmt::Break(stmt.span.clone())
+            }
+        }
+    }
+
+    fn lower_let(&mut self, stmt: &LetStmt) -> MetaStmt {
+        let declared_ty = self.lower_type(&stmt.ty);
+
+        let value = stmt.value.as_ref().map(|expr| {
+            let value = self.lower_expr(expr);
+            self.coerce_expr(value, &declared_ty)
+        });
+
+        self.insert_local(stmt.name.clone(), declared_ty.clone());
+
+        MetaStmt::Let {
+            span: stmt.span.clone(),
+            name: stmt.name.clone(),
+            mutable: stmt.mutable,
+            ty: Some(declared_ty),
+            value,
+        }
+    }
+}

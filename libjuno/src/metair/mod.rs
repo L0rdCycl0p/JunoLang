@@ -1,5 +1,13 @@
+mod coercion;
+mod expr;
+mod generator;
+mod intern;
+mod lookup;
+mod ops;
+mod program;
+mod stmt;
 mod metair;
-mod metairgen;
-mod scope;
+mod types;
+pub use generator::MetaIRGen;
 pub use metair::*;
-pub use metairgen::MetaIRGen;
+//pub use metairgen::MetaIRGen;
