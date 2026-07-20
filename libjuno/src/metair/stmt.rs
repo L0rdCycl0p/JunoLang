@@ -43,7 +43,7 @@ impl<'a> MetaIRGen<'a> {
             Stmt::Expr(expr) => MetaStmt::Expr(self.lower_expr(expr)),
 
             Stmt::Return(expr, span) => {
-                MetaStmt::Return(expr.as_ref().map(|e| self.lower_expr(e)),*span)
+                MetaStmt::Return(expr.as_ref().map(|e| self.lower_expr(e)), *span)
             }
 
             Stmt::Break(span) => MetaStmt::Break(*span),
@@ -85,10 +85,7 @@ impl<'a> MetaIRGen<'a> {
                                 expr: Box::new(cond.clone()),
                             },
 
-                            ty: MetaType::Named(
-                                "bool".to_string(),
-                                cond.span,
-                            ),
+                            ty: MetaType::Named("bool".to_string(), cond.span),
                         },
 
                         then_body: vec![MetaStmt::Break(stmt.span)],

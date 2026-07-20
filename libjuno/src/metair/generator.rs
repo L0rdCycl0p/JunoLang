@@ -35,7 +35,6 @@ pub struct MetaIRGen<'a> {
 
     pub(crate) next_string: u32,
     pub(crate) next_struct_field: u32,
-    pub(crate) counter: u32,
 }
 
 impl<'a> MetaIRGen<'a> {
@@ -54,12 +53,11 @@ impl<'a> MetaIRGen<'a> {
 
             next_string: 0,
             next_struct_field: 0,
-            counter: 0,
         }
     }
 
     pub fn make_span_error(&self, msg: &str, span: JunoSpan) -> miette::Error {
-        miette::Error::from(span.err_to_report(msg, self.source_code.clone(), &self.source_file_name))
+        span.err_to_report(msg, self.source_code.clone(), &self.source_file_name)
     }
 }
 

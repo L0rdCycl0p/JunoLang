@@ -16,54 +16,48 @@ impl<'a> MetaIRGen<'a> {
     pub(crate) fn lower_expr(&mut self, expr: &Expr) -> MetaExpr {
         match expr {
             Expr::Integer(value, ty, span) => MetaExpr {
-                span:*span,
-                kind: MetaExprKind::Const(MetaConst::Int(*value,*span),*span),
+                span: *span,
+                kind: MetaExprKind::Const(MetaConst::Int(*value, *span), *span),
                 ty: ty
                     .as_ref()
                     .map(|t| self.lower_type(t))
-                    .unwrap_or_else(|| MetaType::Named("i32".to_string(),*span)),
+                    .unwrap_or_else(|| MetaType::Named("i32".to_string(), *span)),
             },
 
             Expr::Fractional(value, ty, span) => MetaExpr {
-                span:*span,
-                kind: MetaExprKind::Const(
-                    MetaConst::Fractional(*value,*span),
-                   *span,
-                ),
+                span: *span,
+                kind: MetaExprKind::Const(MetaConst::Fractional(*value, *span), *span),
                 ty: ty
                     .as_ref()
                     .map(|t| self.lower_type(t))
-                    .unwrap_or_else(|| MetaType::Named("f32".to_string(),*span)),
+                    .unwrap_or_else(|| MetaType::Named("f32".to_string(), *span)),
             },
 
             Expr::Boolean(value, span) => MetaExpr {
-                span:*span,
-                kind: MetaExprKind::Const(MetaConst::Bool(*value,*span),*span),
-                ty: MetaType::Named("bool".into(),*span),
+                span: *span,
+                kind: MetaExprKind::Const(MetaConst::Bool(*value, *span), *span),
+                ty: MetaType::Named("bool".into(), *span),
             },
 
             Expr::Char(value, span) => MetaExpr {
-                span:*span,
-                kind: MetaExprKind::Const(MetaConst::Char(*value,*span),*span),
-                ty: MetaType::Named("char".into(),*span),
+                span: *span,
+                kind: MetaExprKind::Const(MetaConst::Char(*value, *span), *span),
+                ty: MetaType::Named("char".into(), *span),
             },
 
             Expr::String(value, span) => {
                 let id = self.intern_string(value);
 
                 MetaExpr {
-                    span:*span,
-                    kind: MetaExprKind::String(id,*span),
-                    ty: MetaType::Pointer(
-                        Box::new(MetaType::Named("char".into(),*span)),
-                       *span,
-                    ),
+                    span: *span,
+                    kind: MetaExprKind::String(id, *span),
+                    ty: MetaType::Pointer(Box::new(MetaType::Named("char".into(), *span)), *span),
                 }
             }
 
             Expr::Var(name, span) => MetaExpr {
-                span:*span,
-                kind: MetaExprKind::Var(name.clone(),*span),
+                span: *span,
+                kind: MetaExprKind::Var(name.clone(), *span),
                 ty: self.lookup_local_type(name.clone()),
             },
 
@@ -78,10 +72,10 @@ impl<'a> MetaIRGen<'a> {
                 let size = values.len() as u32;
 
                 MetaExpr {
-                    span:*span,
-                    kind: MetaExprKind::Array(values,*span),
+                    span: *span,
+                    kind: MetaExprKind::Array(values, *span),
                     ty: MetaType::Array {
-                        span:*span,
+                        span: *span,
                         elem: Box::new(elem_ty),
                         size,
                     },
@@ -119,12 +113,10 @@ impl<'a> MetaIRGen<'a> {
                     .args
                     .iter()
                     .map(|arg| match arg {
-                        Arg::Positional(expr, span) => {
-                            MetaArg::Pos(self.lower_expr(expr),*span)
-                        }
+                        Arg::Positional(expr, span) => MetaArg::Pos(self.lower_expr(expr), *span),
 
                         Arg::Named(name, expr, span) => {
-                            MetaArg::Named(name.clone(), self.lower_expr(expr),*span)
+                            MetaArg::Named(name.clone(), self.lower_expr(expr), *span)
                         }
                     })
                     .collect();
@@ -149,7 +141,7 @@ impl<'a> MetaIRGen<'a> {
                                             .unwrap()
                                             .collect();
 
-                                    let mut parser = JunoASTParser::new("_".into());
+                                    let parser = JunoASTParser::new("_".into());
 
                                     let ast_ty =
                                         parser.parse_type(parsed.first().unwrap().clone()).unwrap();

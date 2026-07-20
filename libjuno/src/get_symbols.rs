@@ -45,7 +45,7 @@ pub fn get_symbols_from_file(p: &Path, pkg_name: String) -> SymbolDeclTable {
 
 pub fn get_symbols(input: String, namespace: String, filename: Option<String>) -> SymbolDeclTable {
     let filename = filename.unwrap_or("<unknown>".to_string());
-    let pairs = match JunoParser::parse(Rule::program, &input.as_str()) {
+    let pairs = match JunoParser::parse(Rule::program, input.as_str()) {
         Ok(pairs) => pairs,
         Err(e) => {
             panic!("{e}");
@@ -62,21 +62,21 @@ pub fn get_symbols(input: String, namespace: String, filename: Option<String>) -
     let metairgen = Box::leak(Box::new(MetaIRGen::new(expr, input, filename)));
     let metair = Box::leak(Box::new(metairgen.lower_program(expr)));
     let mut symbols = vec![];
-    for (f_name, f) in &metair.functions {
+    for f in metair.functions.values() {
         symbols.push(SymbolDecl::Function {
             name: f.name.clone(),
             params: f.params.clone(),
             ret: f.ret.clone(),
         });
     }
-    for (s_name, s) in &metair.structs {
+    for s in metair.structs.values() {
         symbols.push(SymbolDecl::Struct {
             name: s.name.clone(),
             fields: s.fields.clone(),
         });
     }
     SymbolDeclTable {
-        symbols: symbols,
+        symbols,
         program: metair.clone(),
     }
 }

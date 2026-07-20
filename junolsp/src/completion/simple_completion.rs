@@ -2,9 +2,8 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::backend::Backend;
 use libjuno::{BuiltinEnum, REGISTRY};
-use tower_lsp::{jsonrpc::Result, lsp_types::*};
+use tower_lsp::lsp_types::*;
 
 pub(super) fn snippets() -> Vec<CompletionItem> {
     vec![
@@ -93,7 +92,7 @@ pub(super) fn snippets() -> Vec<CompletionItem> {
 pub(super) fn builtins() -> Vec<CompletionItem> {
     let mut items = vec![];
 
-    for (name, i) in REGISTRY.entries().into_iter() {
+    for (name, i) in REGISTRY.entries() {
         items.push(match i.declare {
             BuiltinEnum::Function {
                 param_types,
@@ -114,9 +113,6 @@ pub(super) fn builtins() -> Vec<CompletionItem> {
                     insert_text_format: Some(InsertTextFormat::SNIPPET),
                     ..Default::default()
                 }
-            }
-            _ => {
-                continue;
             }
         });
     }

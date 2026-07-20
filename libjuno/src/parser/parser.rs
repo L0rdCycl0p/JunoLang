@@ -1,12 +1,8 @@
-use std::collections::{HashMap, HashSet};
-use std::fmt::format;
-use std::hash::Hash;
-use std::mem::take;
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use anyhow::anyhow;
 use pest::Span;
-use pest::error::{Error, ErrorVariant, InputLocation};
 use pest::iterators::Pair;
 
 use crate::ast::*;
@@ -22,11 +18,11 @@ pub struct JunoASTParser {
 }
 impl JunoASTParser {
     pub fn new(namespace: String) -> JunoASTParser {
-        return JunoASTParser {
+        JunoASTParser {
             functions: HashSet::new(),
             namespace,
             ..Default::default()
-        };
+        }
     }
     pub fn with_source(&mut self, source_code: Arc<str>, source_file_name: Arc<str>) -> &mut Self {
         self.source_code = source_code;
@@ -46,12 +42,16 @@ pub fn parse_program(
         .parse_program(pair)
 }
 
-impl<'a> JunoASTParser {
+impl JunoASTParser {
     pub fn make_span(&self, span: Span) -> JunoSpan {
         JunoSpan::from(span)
     }
     pub fn make_span_error(&self, span: Span, label: &str) -> miette::Error {
-        self.make_span(span).err_to_report(label, self.source_code.to_string(), &self.source_file_name)
+        self.make_span(span).err_to_report(
+            label,
+            self.source_code.to_string(),
+            &self.source_file_name,
+        )
     }
     pub fn parse_program(&mut self, pair: Pair<Rule>) -> anyhow::Result<Program> {
         let span = pair.as_span();
@@ -66,11 +66,8 @@ impl<'a> JunoASTParser {
                                 return Err(e);
                             }
                             Ok(i) => {
-                                match i.clone() {
-                                    Item::Function(f, _) => {
-                                        self.functions.insert(f.raw_name.clone());
-                                    }
-                                    _ => (),
+                                if let Item::Function(f, _) = i.clone() {
+                                    self.functions.insert(f.raw_name.clone());
                                 };
                                 i
                             }
@@ -80,10 +77,10 @@ impl<'a> JunoASTParser {
                 }
                 Rule::EOI => {}
                 other => {
-                    return Err(anyhow!(self.make_span_error(span, &format!(
-                        "unexpected rule in program: {:?}",
-                        other
-                    ))));
+                    return Err(anyhow!(self.make_span_error(
+                        span,
+                        &format!("unexpected rule in program: {:?}", other)
+                    )));
                 }
             }
         }
@@ -125,7 +122,7 @@ impl<'a> JunoASTParser {
         let span = pair.as_span();
         let mut inner = pair.into_inner();
 
-        let path = self.clean_ident(inner.next().unwrap().as_str()).to_string();
+        let path = self.clean_ident(inner.next().unwrap().as_str());
         print!("{}", path);
         Ok(Import {
             span: self.make_span(span),
@@ -138,8 +135,8 @@ impl<'a> JunoASTParser {
         let mut inner = pair.into_inner();
 
         let raw_name: String = self.clean_ident(inner.next().unwrap().as_str());
-        let mut name = self.with_namespace(&raw_name).to_string();
-        if raw_name == "main".to_string() {
+        let mut name = self.with_namespace(&raw_name);
+        if raw_name == "main" {
             name = "main".to_string();
         }
         let mut params = vec![];
@@ -204,7 +201,7 @@ impl<'a> JunoASTParser {
     fn parse_params(&self, pair: JunoPair) -> anyhow::Result<Vec<Param>> {
         let span = pair.as_span();
         let mut params: Vec<Param> = vec![];
-        for p in pair.into_inner().into_iter() {
+        for p in pair.into_inner() {
             let mut inner = p.into_inner();
             let name = self.clean_ident(inner.next().unwrap().as_str());
             let ty = match self.parse_type(inner.next().unwrap()) {
@@ -251,9 +248,7 @@ impl<'a> JunoASTParser {
             Rule::assign_stmt => self.parse_assign_stmt(inner),
             Rule::expr_stmt => match self.parse_expr(inner.into_inner().next().unwrap()) {
                 Ok(e) => Ok(Stmt::Expr(e)),
-                Err(e) => {
-                    return Err(e);
-                }
+                Err(e) => Err(e),
             },
             Rule::return_stmt => {
                 let i = match inner.into_inner().next().map(|x| self.parse_expr(x)) {
@@ -366,8 +361,8 @@ impl<'a> JunoASTParser {
         match first.as_rule() {
             Rule::expr => self.parse_expr(first),
 
-            Rule::integer => self.parse_integer(first).map_err(Into::into),
-            Rule::fractional => self.parse_fractional(first).map_err(Into::into),
+            Rule::integer => self.parse_integer(first),
+            Rule::fractional => self.parse_fractional(first),
             Rule::boolean => Ok(Expr::Boolean(first.as_str() == "true", span)),
 
             Rule::string => self.parse_string(first),
@@ -382,21 +377,18 @@ impl<'a> JunoASTParser {
 
             Rule::struct_init => self.parse_struct_init(first),
 
-            other => Err(anyhow!(
-                self.make_span_error(first.as_span(), &format!("unexpected primary: {:?}", other)))
-            ),
+            other => Err(anyhow!(self.make_span_error(
+                first.as_span(),
+                &format!("unexpected primary: {:?}", other)
+            ))),
         }
     }
     fn parse_integer(&self, pair: JunoPair) -> anyhow::Result<Expr> {
         let mut inner = pair.clone().into_inner();
         let first = inner.next().unwrap().as_str(); // TODO: No unwrap
-        let ty = match inner.next() {
-            None => None,
-            Some(x) => Some(Type::Named(
-                x.as_str().replace('_', ""),
-                self.make_span(x.as_span()),
-            )),
-        };
+        let ty = inner
+            .next()
+            .map(|x| Type::Named(x.as_str().replace('_', ""), self.make_span(x.as_span())));
 
         Ok(Expr::Integer(
             match first.parse() {
@@ -417,13 +409,9 @@ impl<'a> JunoASTParser {
 
         let first = inner.next().unwrap(); // TODO: No unwrap
         let first_str = first.as_str();
-        let ty = match inner.next() {
-            None => None,
-            Some(x) => Some(Type::Named(
-                x.as_str().replace('_', ""),
-                self.make_span(x.as_span()),
-            )),
-        };
+        let ty = inner
+            .next()
+            .map(|x| Type::Named(x.as_str().replace('_', ""), self.make_span(x.as_span())));
 
         Ok(Expr::Fractional(
             match first_str.parse() {
@@ -469,12 +457,12 @@ impl<'a> JunoASTParser {
         let mut inner = pair.into_inner();
         let possible_mutable_pair = inner.next().unwrap();
         let mutable = possible_mutable_pair.as_str() == "mut";
-        let name: String;
-        if !mutable {
-            name = self.clean_ident(possible_mutable_pair.as_str());
+
+        let name: String = if !mutable {
+            self.clean_ident(possible_mutable_pair.as_str())
         } else {
-            name = self.clean_ident(inner.next().unwrap().as_str());
-        }
+            self.clean_ident(inner.next().unwrap().as_str())
+        };
         let ty = self.parse_type(inner.next().unwrap())?;
         let value = match inner.next().map(|x| self.parse_expr(x)) {
             None => None,
@@ -526,7 +514,7 @@ impl<'a> JunoASTParser {
             true => self.with_namespace(&raw_target),
             false => raw_target,
         };
-        if *target == "main".to_string() {
+        if &target == "main" {
             target = "main".to_string();
         }
         let mut args = Vec::new();
@@ -661,9 +649,10 @@ impl<'a> JunoASTParser {
             "!" => Ok(UnOp::Not),
             "-" => Ok(UnOp::Neg),
             "~" => Ok(UnOp::BitNot),
-            other => Err(anyhow!(
-                self.make_span_error(pair.as_span(), &format!("unknown unary op: {}", other))
-            )),
+            other => Err(anyhow!(self.make_span_error(
+                pair.as_span(),
+                &format!("unknown unary op: {}", other)
+            ))),
         }
     }
     fn parse_comparison(&self, pair: Pair<Rule>) -> anyhow::Result<Expr> {
@@ -853,9 +842,11 @@ impl<'a> JunoASTParser {
     fn clean_ident(&self, s: &str) -> String {
         let s: &str = s.trim();
 
-        if s.contains(' ') {
-            panic!("invalid identifier: contains whitespace: '{}'", s);
-        }
+        assert!(
+            !s.contains(' '),
+            "invalid identifier: contains whitespace: '{}'",
+            s
+        );
 
         s.to_string()
     }

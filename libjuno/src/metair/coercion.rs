@@ -28,9 +28,11 @@ impl<'a> MetaIRGen<'a> {
                     size,
                 },
             ) => {
-                if values.len() > *size as usize {
-                    panic!("{:?}", self.make_span_error("array too large", *span));
-                }
+                assert!(
+                    values.len() <= *size as usize,
+                    "{:?}",
+                    self.make_span_error("array too large", *span)
+                );
 
                 for value in values.iter_mut() {
                     *value = self.coerce_expr(value.clone(), expected_elem);
@@ -72,7 +74,10 @@ impl<'a> MetaIRGen<'a> {
                 Ok((lhs, rhs))
             }
 
-            _ => Err(self.make_span_error(&format!("type mismatch: {} vs {}", lhs.ty, rhs.ty,), lhs.span)),
+            _ => Err(self.make_span_error(
+                &format!("type mismatch: {} vs {}", lhs.ty, rhs.ty,),
+                lhs.span,
+            )),
         }
     }
 }

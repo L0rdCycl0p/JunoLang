@@ -9,38 +9,29 @@ impl<'a> MetaIRGen<'a> {
 
     pub(crate) fn lower_type(&mut self, ty: &Type) -> MetaType {
         match ty {
-            Type::Named(name, span) => {
-                MetaType::Named(name.clone(),*span)
-            }
+            Type::Named(name, span) => MetaType::Named(name.clone(), *span),
 
             Type::Pointer(inner, span) => {
-                MetaType::Pointer(
-                    Box::new(self.lower_type(inner)),
-                   *span,
-                )
+                MetaType::Pointer(Box::new(self.lower_type(inner)), *span)
             }
 
             Type::Reference(inner, span) => {
-                MetaType::Reference(
-                    Box::new(self.lower_type(inner)),
-                   *span,
-                )
+                MetaType::Reference(Box::new(self.lower_type(inner)), *span)
             }
 
-            Type::Array { elem, size, span } => {
-                MetaType::Array {
-                    span:*span,
-                    elem: Box::new(self.lower_type(elem)),
-                    size: *size,
-                }
-            }
+            Type::Array { elem, size, span } => MetaType::Array {
+                span: *span,
+                elem: Box::new(self.lower_type(elem)),
+                size: *size,
+            },
 
-            Type::Generic { base, args: _, span } => {
+            Type::Generic {
+                base,
+                args: _,
+                span,
+            } => {
                 // Generic arguments are currently erased.
-                MetaType::Named(
-                    base.clone(),
-                   *span,
-                )
+                MetaType::Named(base.clone(), *span)
             }
         }
     }

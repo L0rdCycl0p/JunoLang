@@ -12,7 +12,7 @@ mod file_global_completion;
 mod get_program;
 mod simple_completion;
 
-pub(self) use get_program::get_program;
+use get_program::get_program;
 pub async fn completion(
     backend: &Backend,
     params: CompletionParams,

@@ -22,7 +22,7 @@ pub(super) async fn file_global_completion(
 
     for i in program.items {
         match i {
-            Item::Function(f, span) => {
+            Item::Function(f, _span) => {
                 create_completion_for_function(f, &mut items);
             }
             _ => {
@@ -34,7 +34,7 @@ pub(super) async fn file_global_completion(
     Ok(items)
 }
 
-fn create_completion_for_function<'a>(function: Function, items: &mut Vec<CompletionItem>) {
+fn create_completion_for_function(function: Function, items: &mut Vec<CompletionItem>) {
     let param_len = function.params.len();
     let mut param_text_v = vec![];
     for p in 0..param_len {

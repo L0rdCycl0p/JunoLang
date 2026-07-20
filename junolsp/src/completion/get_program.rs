@@ -2,12 +2,10 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::io::{Error, ErrorKind};
+use std::io::Error;
 use std::sync::Arc;
 
-use tower_lsp::lsp_types::{CompletionItem, CompletionParams, MessageType};
-use tracing::Instrument;
-use tracing::instrument::WithSubscriber;
+use tower_lsp::lsp_types::{CompletionParams, MessageType};
 
 use crate::backend::Backend;
 use libjuno::ast::*;
@@ -25,10 +23,10 @@ pub(super) async fn get_program(
     let pairs = match JunoParser::parse(Rule::program, &document) {
         Ok(pairs) => pairs,
         Err(e) => {
-            let msg = format!("{}", e);
+            let _msg = format!("{}", e);
             //backend.client.log_message(MessageType::ERROR, msg);
 
-            return Err(Error::new(ErrorKind::Other, "parse error"));
+            return Err(Error::other("parse error"));
         }
     };
 
@@ -53,7 +51,7 @@ pub(super) async fn get_program(
 
             backend.client.log_message(MessageType::ERROR, msg).await;
 
-            Err(Error::new(ErrorKind::Other, "program error"))
+            Err(Error::other("program error"))
         }
     }
 }

@@ -87,10 +87,7 @@ impl<'a> MetaIRGen<'a> {
             });
         }
 
-        let ret = function
-            .return_type
-            .as_ref()
-            .map(|ty| self.lower_type(ty));
+        let ret = function.return_type.as_ref().map(|ty| self.lower_type(ty));
 
         self.declarations.insert(
             name.clone(),

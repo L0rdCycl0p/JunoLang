@@ -1,7 +1,5 @@
 use inkwell::types::BasicTypeEnum;
-use inkwell::types::FunctionType;
 use inkwell::types::StructType;
-use inkwell::values::StructValue;
 
 use std::collections::HashMap;
 
@@ -49,7 +47,13 @@ pub struct LLVMBackend<'ctx> {
 }
 
 impl<'ctx> LLVMBackend<'ctx> {
-    pub fn new(context: &'ctx Context, program: &'ctx MetaProgram, module_name: &str, source_code: String, source_file_name: String) -> Self {
+    pub fn new(
+        context: &'ctx Context,
+        program: &'ctx MetaProgram,
+        module_name: &str,
+        source_code: String,
+        source_file_name: String,
+    ) -> Self {
         let mut s = Self {
             context,
             source_code,

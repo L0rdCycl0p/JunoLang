@@ -8,7 +8,7 @@ pub struct Variable<'ctx> {
     pub ptr: PointerValue<'ctx>,
     pub ty: BasicTypeEnum<'ctx>,
 }
-
+#[derive(Default)]
 pub struct Scope<'ctx> {
     variables: HashMap<SymbolId, Variable<'ctx>>,
 }
@@ -16,7 +16,7 @@ pub struct Scope<'ctx> {
 impl<'ctx> Scope<'ctx> {
     pub fn new() -> Self {
         Self {
-            variables: HashMap::new(),
+            ..Default::default()
         }
     }
 

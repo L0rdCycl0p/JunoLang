@@ -111,9 +111,8 @@ impl MetaStmt {
         match self {
             MetaStmt::Assign { span, .. } => span,
             MetaStmt::Let { span, .. } => span,
-            MetaStmt::Assign { span, .. } => span,
             MetaStmt::Expr(meta_expr) => &meta_expr.span,
-            MetaStmt::Return(meta_expr, juno_span) => juno_span,
+            MetaStmt::Return(_meta_expr, juno_span) => juno_span,
             MetaStmt::Break(juno_span) => juno_span,
             MetaStmt::Continue(juno_span) => juno_span,
             MetaStmt::If { span, .. } => span,
@@ -290,7 +289,7 @@ impl fmt::Display for MetaType {
             MetaType::Array { elem, size, .. } => {
                 write!(f, "[{elem}; {size}] (arr)")
             }
-            MetaType::Unit(juno_span) => {
+            MetaType::Unit(_juno_span) => {
                 write!(f, "Unit")
             }
         }

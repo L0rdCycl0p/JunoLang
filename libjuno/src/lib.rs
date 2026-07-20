@@ -10,7 +10,6 @@
 #![deny(clippy::collection_is_never_read)]
 #![deny(clippy::manual_filter)]
 #![deny(unused_must_use)]
-#![warn(clippy::all)]
 //#![forbid(unsafe_code)]
 
 #[cfg(feature = "grammar")]

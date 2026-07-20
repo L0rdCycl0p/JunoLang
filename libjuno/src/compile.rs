@@ -3,7 +3,6 @@ use pest::Parser;
 use std::{
     path::{Component, Path},
     process::exit,
-    sync::Arc,
 };
 
 use crate::*;
@@ -33,16 +32,26 @@ pub fn compile_file(p: &Path, pkg_name: Option<String>) -> Module<'static> {
     )
     .unwrap();
     let expr = Box::leak(Box::new(expr_owned));
-    let metairgen = Box::leak(Box::new(MetaIRGen::new(expr, input.clone(), file_name.to_string())));
+    let metairgen = Box::leak(Box::new(MetaIRGen::new(
+        expr,
+        input.clone(),
+        file_name.to_string(),
+    )));
     let metair = Box::leak(Box::new(metairgen.lower_program(expr)));
     let context = Box::leak(Box::new(inkwell::context::Context::create()));
-    let mut irgen = LLVMBackend::new(context, metair, "main", input.clone(), file_name.to_string());
+    let mut irgen = LLVMBackend::new(
+        context,
+        metair,
+        "main",
+        input.clone(),
+        file_name.to_string(),
+    );
 
     if let Err(e) = irgen.compile() {
         eprintln!("{}", e);
         exit(1);
     }
-    return irgen.module;
+    irgen.module
 }
 
 pub fn path_to_namespace(p: &Path, pkg_name: Option<String>) -> String {
@@ -75,5 +84,5 @@ pub fn path_to_namespace(p: &Path, pkg_name: Option<String>) -> String {
             "Warning: juno modules does not work with absolute path, juno need a package for working with multiple files"
         );
     }
-    return p.file_prefix().unwrap().to_str().unwrap().to_string();
+    p.file_prefix().unwrap().to_str().unwrap().to_string()
 }

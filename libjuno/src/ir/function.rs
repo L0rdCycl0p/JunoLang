@@ -9,14 +9,14 @@ use inkwell::types::BasicMetadataTypeEnum;
 
 impl<'ctx> LLVMBackend<'ctx> {
     pub fn lower_program(&mut self) -> Result<(), LLVMError> {
-        for (struct_name, s) in &self.program.structs {
+        for s in self.program.structs.values() {
             self.lower_struct(s, &s.span)?;
         }
-        for (declaration_name, declaration) in &self.program.declarations {
+        for declaration in self.program.declarations.values() {
             self.lower_declaration(declaration, &declaration.span)?;
         }
 
-        for (function_name, function) in &self.program.functions {
+        for function in self.program.functions.values() {
             self.current_meta_function = Some(function);
             self.declare_function(function)?;
             self.lower_function(function, &function.span)?;
@@ -66,26 +66,26 @@ impl<'ctx> LLVMBackend<'ctx> {
 
         for (index, param) in function.params.iter().enumerate() {
             let llvm_param = llvm_function.get_nth_param(index as u32).ok_or_else(|| {
-                self.make_span_error(format!("missing llvm parameter {}", index),*span)
+                self.make_span_error(format!("missing llvm parameter {}", index), *span)
             })?;
 
-            llvm_param.set_name(&param.name.as_str());
+            llvm_param.set_name(param.name.as_str());
 
             let llvm_type = self.lower_type(&param.ty, &param.span)?;
             let ptr = self
                 .builder
-                .build_alloca(llvm_type, &param.name.as_str())
-                .map_err(|e| self.make_span_error(e.to_string(),*span))?;
+                .build_alloca(llvm_type, param.name.as_str())
+                .map_err(|e| self.make_span_error(e.to_string(), *span))?;
 
             self.builder
                 .build_store(ptr, llvm_param)
-                .map_err(|e| self.make_span_error(e.to_string(),*span))?;
+                .map_err(|e| self.make_span_error(e.to_string(), *span))?;
 
             self.insert_variable(param.name.clone(), ptr, llvm_param.get_type());
         }
 
         for stmt in &function.body {
-            self.lower_stmt(stmt, &stmt.span())?;
+            self.lower_stmt(stmt, stmt.span())?;
         }
 
         if self
@@ -102,14 +102,14 @@ impl<'ctx> LLVMBackend<'ctx> {
                             "function '{}' is missing a return statement",
                             function.name.as_str()
                         ),
-                       *span,
+                        *span,
                     ));
                 }
 
                 None => {
                     self.builder
                         .build_return(None)
-                        .map_err(|e| self.make_span_error(e.to_string(),*span))?;
+                        .map_err(|e| self.make_span_error(e.to_string(), *span))?;
                 }
             }
         }

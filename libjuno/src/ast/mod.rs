@@ -2,31 +2,20 @@
 //License, v. 2.0. If a copy of the MPL was not distributed with this
 //file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use anyhow::anyhow;
-use miette::{LabeledSpan, NamedSource, Report, SourceOffset, SourceSpan};
-use pest::Span;
+use miette::{LabeledSpan, NamedSource, Report};
 use std::fmt;
-use std::sync::Arc;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct JunoSpan {
     pub start: usize,
     pub end: usize,
 }
 
 impl JunoSpan {
-    pub fn new(
-        start: usize,
-        end: usize,
-    ) -> Self {
-        Self {
-            start,
-            end,
-        }
+    pub fn new(start: usize, end: usize) -> Self {
+        Self { start, end }
     }
 }
-use std::convert::TryFrom;
-
 
 impl<'a> From<pest::Span<'a>> for JunoSpan {
     fn from(span: pest::Span<'a>) -> Self {
@@ -41,16 +30,14 @@ impl JunoSpan {
     pub fn err_to_report(&self, label: &str, source: String, source_file_name: &str) -> Report {
         let source = NamedSource::new(source_file_name, source);
 
-        let report = miette::miette!(
+        miette::miette!(
             labels = vec![LabeledSpan::at(self.start..self.end, label)],
             "Error"
         )
-        .with_source_code(source);
-
-        report
+        .with_source_code(source)
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Program {
     pub span: JunoSpan,
     pub items: Vec<Item>,

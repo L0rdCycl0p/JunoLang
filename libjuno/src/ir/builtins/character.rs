@@ -1,5 +1,4 @@
 use super::LLVMBackend;
-use crate::*;
 
 impl<'ctx> LLVMBackend<'ctx> {
     pub(super) fn add_isalnum(&mut self) {

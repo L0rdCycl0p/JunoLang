@@ -1,7 +1,6 @@
 use crate::ast::JunoSpan;
 use crate::metair::*;
 use inkwell::types::BasicType;
-use inkwell::values::FunctionValue;
 
 use super::*;
 

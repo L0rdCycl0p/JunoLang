@@ -12,14 +12,14 @@ impl<'ctx> LLVMBackend<'ctx> {
         span: &JunoSpan,
     ) -> Result<BasicTypeEnum<'ctx>, LLVMError> {
         match ty {
-            MetaType::Pointer(inner, span) => {
+            MetaType::Pointer(_inner, _span) => {
                 Ok(self
                     .context
                     .ptr_type(AddressSpace::default())
                     .as_basic_type_enum()) // TODO ptr_type is deprecated, searching for alternative
             }
 
-            MetaType::Reference(inner, span) => {
+            MetaType::Reference(_inner, _span) => {
                 Ok(self
                     .context
                     .ptr_type(AddressSpace::default())
@@ -29,7 +29,7 @@ impl<'ctx> LLVMBackend<'ctx> {
                 Ok(self.lower_type(elem, span)?.array_type(*size).into())
             }
 
-            MetaType::Named(id, named_span) => match id.as_str() {
+            MetaType::Named(id, _named_span) => match id.as_str() {
                 "bool" => Ok(self.context.bool_type().into()),
 
                 "char" => Ok(self.context.i8_type().into()),
@@ -48,12 +48,12 @@ impl<'ctx> LLVMBackend<'ctx> {
                 "f64" => Ok(self.context.f64_type().into()),
 
                 _ => {
-                    if self.program.structs.get(id).is_some() {
+                    if self.program.structs.contains_key(id) {
                         if !self.structs.contains_key(id) {
                             //return self.struct_type(&self.program.structs[&id.clone()], span).map(|x| x.as_basic_type_enum())
                             return Err(self.make_span_error(
                                 "Struct found but not in irgen, maybe a compiler bug?".to_string(),
-                               *span,
+                                *span,
                             ));
                         }
                         return match self.get_struct(id.clone()) {
@@ -64,7 +64,7 @@ impl<'ctx> LLVMBackend<'ctx> {
                     Err(LLVMError::UnknownType(id.clone()))
                 }
             },
-            MetaType::Unit(span) => todo!(), //e => Err(LLVMError::Message(format!("type not implemented: {:#?}", e).into())),
+            MetaType::Unit(_span) => todo!(), //e => Err(LLVMError::Message(format!("type not implemented: {:#?}", e).into())),
         }
     }
 
@@ -78,10 +78,9 @@ impl<'ctx> LLVMBackend<'ctx> {
                 elem,
                 size: _,
             } => self.get_named_from_type(elem),
-            MetaType::Unit(juno_span) => Err(self.make_span_error(
-                "Unit type found".to_string(),
-                *juno_span,
-            )),
+            MetaType::Unit(juno_span) => {
+                Err(self.make_span_error("Unit type found".to_string(), *juno_span))
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ use std::sync::Arc;
 use tower_lsp::{Client, LanguageServer, jsonrpc::Result, lsp_types::*};
 
 use crate::{
-    completion, diagnostics, goto_definition, hover, semantic_tokens,
+    completion, diagnostics, hover,
     workspace::{SharedWorkspace, Workspace},
 };
 

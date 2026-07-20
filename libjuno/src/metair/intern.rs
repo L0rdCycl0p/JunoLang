@@ -18,18 +18,13 @@ impl<'a> MetaIRGen<'a> {
         s
     }
 
-    pub(crate) fn intern_struct_field(
-        &mut self,
-        struct_id: SymbolId,
-        field_name: &str,
-    ) -> u32 {
+    pub(crate) fn intern_struct_field(&mut self, struct_id: SymbolId, field_name: &str) -> u32 {
         if let Some(fields) = self.struct_fields.get(&struct_id) {
             if let Some(id) = fields.get(field_name) {
                 return *id;
             }
         } else {
-            self.struct_fields
-                .insert(struct_id.clone(), HashMap::new());
+            self.struct_fields.insert(struct_id.clone(), HashMap::new());
         }
 
         let id = self.next_struct_field;
@@ -55,15 +50,5 @@ impl<'a> MetaIRGen<'a> {
         self.string_list.push(s.to_string());
 
         id
-    }
-
-    pub(crate) fn counter(&mut self) -> u32 {
-        let current = self.counter;
-        self.counter += 1;
-        current
-    }
-
-    pub(crate) fn reset_counter(&mut self) {
-        self.counter = 0;
     }
 }
