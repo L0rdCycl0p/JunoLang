@@ -498,11 +498,9 @@ impl<'a> MetaIRGen<'a> {
                     .map(|a| match a {
                         Arg::Positional(e, span) => MetaArg::Pos(self.lower_expr(e), span.clone()),
 
-                        Arg::Named(name, e, span) => MetaArg::Named(
-                            name.clone(),
-                            self.lower_expr(e),
-                            span.clone(),
-                        ),
+                        Arg::Named(name, e, span) => {
+                            MetaArg::Named(name.clone(), self.lower_expr(e), span.clone())
+                        }
                     })
                     .collect();
 
@@ -510,15 +508,15 @@ impl<'a> MetaIRGen<'a> {
                     None => {
                         let builtin = builtin_registry::get_builtin(target.as_str());
                         match builtin {
-                            None => match self.declarations.entry(target.clone()) {
-                                Entry::Occupied(occupied) => {
-                                    let value: &mut MetaDeclaration = occupied.into_mut();
-                                    value.ret.clone().unwrap_or(MetaType::Named(
-                                        "void".to_string(),
-                                        value.span.clone(),
-                                    ))
+                            None => match self.declarations.get(target.as_str()) {
+                                Some(value) => value
+                                    .ret
+                                    .clone()
+                                    .unwrap_or(MetaType::Named("void".into(), value.span.clone())),
+
+                                None => {
+                                    panic!("unknown function {}", target);
                                 }
-                                Entry::Vacant(vacant) => todo!(),
                             },
                             Some(b) => {
                                 match &b.declare {
