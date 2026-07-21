@@ -31,8 +31,6 @@ impl<'a> MetaIRGen<'a> {
             BinOp::BitSHL => MetaBinOp::BitSHL,
             BinOp::BitSHR => MetaBinOp::BitSHR,
 
-            // Falls dein AST noch weitere Operatoren besitzt,
-            // hier explizit ergänzen.
             _ => unreachable!("unsupported binary operator: {:?}", op),
         }
     }

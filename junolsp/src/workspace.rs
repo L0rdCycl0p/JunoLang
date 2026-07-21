@@ -20,9 +20,9 @@ impl Workspace {
         self.files.insert(uri, text);
     }
 
-    pub fn remove(&self, uri: &Url) {
+    /*pub fn remove(&self, uri: &Url) {
         self.files.remove(uri);
-    }
+    }*/
 
     pub fn source(&self, uri: &Url) -> Option<String> {
         self.files.get(uri).map(|f| f.clone())
