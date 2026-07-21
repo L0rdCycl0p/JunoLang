@@ -1,4 +1,4 @@
-use inkwell::types::{StructType};
+use inkwell::types::StructType;
 
 use super::*;
 use crate::{ast::JunoSpan, metair::*};

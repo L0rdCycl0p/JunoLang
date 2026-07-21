@@ -107,19 +107,11 @@ impl<'ctx> LLVMBackend<'ctx> {
     pub fn current_meta_function(&self) -> &MetaFunction {
         self.current_meta_function.unwrap()
     }
-    pub fn insert_variable(
-        &mut self,
-        id: &str,
-        ptr: PointerValue<'ctx>,
-        ty: BasicTypeEnum<'ctx>,
-    ) {
+    pub fn insert_variable(&mut self, id: &str, ptr: PointerValue<'ctx>, ty: BasicTypeEnum<'ctx>) {
         self.scopes.last_mut().unwrap().insert(id, ptr, ty);
     }
 
-    pub fn get_variable(
-        &self,
-        id: &str,
-    ) -> Result<&crate::ir::scope::Variable<'ctx>, LLVMError> {
+    pub fn get_variable(&self, id: &str) -> Result<&crate::ir::scope::Variable<'ctx>, LLVMError> {
         let mut parts = id.split('.');
 
         let var_name = parts.next().unwrap();

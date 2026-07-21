@@ -12,19 +12,15 @@ impl<'ctx> LLVMBackend<'ctx> {
         span: &JunoSpan,
     ) -> Result<BasicTypeEnum<'ctx>, LLVMError> {
         match ty {
-            MetaType::Pointer(_inner, _span) => {
-                Ok(self
-                    .context
-                    .ptr_type(AddressSpace::default())
-                    .as_basic_type_enum())
-            }
+            MetaType::Pointer(_inner, _span) => Ok(self
+                .context
+                .ptr_type(AddressSpace::default())
+                .as_basic_type_enum()),
 
-            MetaType::Reference(_inner, _span) => {
-                Ok(self
-                    .context
-                    .ptr_type(AddressSpace::default())
-                    .as_basic_type_enum())
-            }
+            MetaType::Reference(_inner, _span) => Ok(self
+                .context
+                .ptr_type(AddressSpace::default())
+                .as_basic_type_enum()),
             MetaType::Array { elem, size, span } => {
                 Ok(self.lower_type(elem, span)?.array_type(*size).into())
             }
@@ -69,9 +65,7 @@ impl<'ctx> LLVMBackend<'ctx> {
 
     pub fn get_named_from_type(&self, ty: &MetaType) -> Result<String, LLVMError> {
         match ty {
-            MetaType::Named(name, _juno_span) => {
-                Ok(name.clone())
-            }
+            MetaType::Named(name, _juno_span) => Ok(name.clone()),
             MetaType::Pointer(meta_type, _juno_span) => self.get_named_from_type(meta_type),
             MetaType::Reference(meta_type, _juno_span) => self.get_named_from_type(meta_type),
             MetaType::Array {
