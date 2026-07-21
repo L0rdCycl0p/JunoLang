@@ -1,4 +1,4 @@
-use anyhow::{bail};
+use anyhow::bail;
 use pest::iterators::Pair;
 
 use super::ParserState;
