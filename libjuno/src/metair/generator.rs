@@ -1,36 +1,28 @@
 use std::collections::HashMap;
 
-use crate::ast::{JunoSpan, Program};
+use crate::ast::{Function, Item, JunoSpan, Program};
 use crate::metair::metair::*;
 
-/// Generator state used while lowering the AST into MetaIR.
-///
-/// The lowering logic itself is split across the other modules.
 pub struct MetaIRGen<'a> {
     pub program: &'a Program,
     pub source_code: String,
     pub source_file_name: String,
-    /// struct_id -> (field_name -> field_index)
     pub struct_fields: HashMap<SymbolId, HashMap<String, u32>>,
 
-    /// String interning.
     pub strings: HashMap<String, StringId>,
 
-    /// All visible declarations (functions + extern declarations).
     pub declarations: HashMap<String, MetaDeclaration>,
 
-    /// Interned symbol table.
     pub symbol_list: Vec<String>,
 
-    /// Interned string table.
+    pub(crate) symbol_set: std::collections::HashSet<String>,
+
     pub string_list: Vec<String>,
 
-    /// Local scopes.
-    ///
-    /// The last element is always the current scope.
+    pub(crate) function_index: HashMap<String, &'a Function>,
+
     pub locals: Vec<HashMap<SymbolId, MetaType>>,
 
-    /// Struct definitions by name.
     pub structs: HashMap<String, MetaStruct>,
 
     pub(crate) next_string: u32,
@@ -39,6 +31,15 @@ pub struct MetaIRGen<'a> {
 
 impl<'a> MetaIRGen<'a> {
     pub fn new(program: &'a Program, source_code: String, source_file_name: String) -> Self {
+        let function_index = program
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                Item::Function(function, _) => Some((function.name.clone(), function)),
+                _ => None,
+            })
+            .collect();
+
         Self {
             program,
             source_code,
@@ -47,9 +48,11 @@ impl<'a> MetaIRGen<'a> {
             strings: HashMap::new(),
             declarations: HashMap::new(),
             symbol_list: Vec::new(),
+            symbol_set: std::collections::HashSet::new(),
             string_list: Vec::new(),
             locals: Vec::new(),
             structs: HashMap::new(),
+            function_index,
 
             next_string: 0,
             next_struct_field: 0,

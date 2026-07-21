@@ -47,14 +47,13 @@ pub fn compile_file(p: &Path, pkg_name: Option<String>) -> Module<'static> {
         file_name.to_string(),
     );
 
-    let module = match irgen.compile() {
+    match irgen.compile() {
         Ok(m) => m,
         Err(e) => {
             eprintln!("{}", e);
             exit(1);
         }
-    };
-    module
+    }
 }
 
 pub fn path_to_namespace(p: &Path, pkg_name: Option<String>) -> String {

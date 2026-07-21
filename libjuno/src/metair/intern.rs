@@ -9,13 +9,11 @@ impl<'a> MetaIRGen<'a> {
     // =======================
 
     pub(in crate::metair) fn intern_symbol(&mut self, s: &str) -> SymbolId {
-        let s = s.to_string();
-
-        if !self.symbol_list.contains(&s) {
-            self.symbol_list.push(s.clone());
+        if self.symbol_set.insert(s.to_string()) {
+            self.symbol_list.push(s.to_string());
         }
 
-        s
+        s.to_string()
     }
 
     pub(crate) fn intern_struct_field(&mut self, struct_id: SymbolId, field_name: &str) -> u32 {

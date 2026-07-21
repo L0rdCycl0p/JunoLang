@@ -8,11 +8,7 @@ impl<'a> MetaIRGen<'a> {
     // =======================
 
     pub(crate) fn find_function(&self, name: &str) -> Option<&'a Function> {
-        self.program.items.iter().find_map(|item| match item {
-            crate::ast::Item::Function(function, _) if function.name == name => Some(function),
-
-            _ => None,
-        })
+        self.function_index.get(name).copied()
     }
 
     // =======================
