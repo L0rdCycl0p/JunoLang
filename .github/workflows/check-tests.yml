@@ -42,4 +42,4 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run tests
-        run: cargo test --workspace --all-features --locked --verbose -- --nocapture
+        run: cargo test --test mod --workspace --all-features --locked --verbose -- --nocapture

@@ -1,10 +1,7 @@
-mod backend;
 mod declaration;
 mod error;
-mod expr;
 mod function;
 mod runtime;
-mod scope;
 mod stmt;
 mod structs;
 mod types;

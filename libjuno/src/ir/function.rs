@@ -17,8 +17,10 @@ impl<'ctx> LLVMBackend<'ctx> {
         }
 
         for function in self.program.functions.values() {
-            self.current_meta_function = Some(function);
             self.declare_function(function)?;
+        }
+
+        for function in self.program.functions.values() {
             self.lower_function(function, &function.span)?;
         }
 
@@ -51,13 +53,15 @@ impl<'ctx> LLVMBackend<'ctx> {
 
     fn lower_function(
         &mut self,
-        function: &MetaFunction,
+        function: &'ctx MetaFunction,
         span: &JunoSpan,
     ) -> Result<(), LLVMError> {
         self.declare_runtime();
 
         let llvm_function = *self.functions.get(&function.name).unwrap();
+
         self.current_function = Some(llvm_function);
+        self.current_meta_function = Some(function);
 
         let entry = self.context.append_basic_block(llvm_function, "entry");
         self.builder.position_at_end(entry);

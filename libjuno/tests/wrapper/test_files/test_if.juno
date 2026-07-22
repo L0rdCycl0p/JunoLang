@@ -1,0 +1,16 @@
+fn main() -> i32 {
+
+    let x: i32 = 12;
+
+    if (x > 20) {
+        printf("large\n");
+    } else {
+        printf("small\n");
+    }
+
+    if (x == 12) {
+        printf("correct\n");
+    }
+
+    return 0;
+}

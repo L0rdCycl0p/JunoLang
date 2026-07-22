@@ -1,8 +1,10 @@
 use inkwell::context::Context;
 use libjuno::ast::JunoSpan;
 use libjuno::ir::{LLVMBackend, LLVMError};
-use libjuno::metair::*;
+use libjuno::{JunoParser, Rule, metair::*, parse_program};
+use pest::Parser;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 /// Adjust this to match your real JunoSpan constructor.
 pub fn dummy_span() -> JunoSpan {
@@ -10,16 +12,28 @@ pub fn dummy_span() -> JunoSpan {
     JunoSpan { start: 0, end: 0 }
 }
 
-pub fn empty_program() -> MetaProgram {
-    MetaProgram {
-        structs: HashMap::new(),
-        declarations: HashMap::new(),
-        functions: HashMap::new(),
-        string_table: Vec::new(),
-        struct_fields: HashMap::new(),
-        span: dummy_span(),
-        symbol_table: Vec::new(),
-    }
+pub fn test_program() -> MetaProgram {
+    let input = include_str!("../../test_files/test0.juno");
+    let pairs = match JunoParser::parse(Rule::program, &input) {
+        Ok(pairs) => pairs,
+        Err(e) => {
+            panic!("{e}");
+        }
+    };
+    let expr_owned = parse_program(
+        pairs.into_iter().next().unwrap(),
+        "test".to_string(),
+        input.into(),
+        Arc::from("test file"),
+    )
+    .unwrap();
+    let expr = Box::leak(Box::new(expr_owned));
+    let metairgen = Box::leak(Box::new(MetaIRGen::new(
+        expr,
+        input.to_string(),
+        "test file".to_string(),
+    )));
+    metairgen.lower_program(expr)
 }
 
 /// Leaks program/context so lifetimes are easy in tests.

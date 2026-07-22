@@ -1,0 +1,12 @@
+fn main() -> i32 {
+
+    let x: i32 = 5;
+
+    printf("%d\n", -x);
+
+    if (!(x == 10)) {
+        printf("not\n");
+    }
+
+    return 0;
+}

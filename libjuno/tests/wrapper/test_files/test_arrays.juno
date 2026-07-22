@@ -1,0 +1,8 @@
+fn main() -> i32 {
+
+    let numbers: [5]i32 = [1,2,3,4,5];
+
+    printf("array created\n");
+
+    return 0;
+}

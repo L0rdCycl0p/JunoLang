@@ -1,0 +1,14 @@
+fn main() -> i32 {
+
+    let value: i32 = 1234;
+
+    let ptr: *i32 = &value;
+
+    printf("%d\n", *ptr);
+
+    let copy: i32 = *ptr;
+
+    printf("%d\n", copy);
+
+    return 0;
+}

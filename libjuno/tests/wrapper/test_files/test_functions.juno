@@ -1,0 +1,24 @@
+fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+
+fn sub(a: i32, b: i32) -> i32 {
+    return a - b;
+}
+
+fn mul(a: i32, b: i32) -> i32 {
+    return a * b;
+}
+
+fn square(x: i32) -> i32 {
+    return x * x;
+}
+
+fn main() -> i32 {
+    printf("%d\n", add(5, 7));
+    printf("%d\n", sub(20, 8));
+    printf("%d\n", mul(6, 9));
+    printf("%d\n", square(12));
+
+    return 0;
+}

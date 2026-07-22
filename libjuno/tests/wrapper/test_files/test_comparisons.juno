@@ -1,0 +1,31 @@
+fn main() -> i32 {
+
+    let a: i32 = 5;
+    let b: i32 = 10;
+
+    if (a < b) {
+        printf("<\n");
+    }
+
+    if (b > a) {
+        printf(">\n");
+    }
+
+    if (a != b) {
+        printf("!=\n");
+    }
+
+    if (a <= 5) {
+        printf("<=\n");
+    }
+
+    if (b >= 10) {
+        printf(">=\n");
+    }
+
+    if (a == 5) {
+        printf("==\n");
+    }
+
+    return 0;
+}
