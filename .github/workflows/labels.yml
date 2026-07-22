@@ -3,9 +3,9 @@ name: Labels
 on:
   pull_request:
     types:
-      - opened
-      - synchronize
-      - reopened
+    - opened
+    - synchronize
+    - reopened
 
 permissions:
   contents: read
@@ -17,120 +17,120 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+    - name: Checkout repository
+      uses: actions/checkout@v7
 
-      - name: Synchronize labels
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const fs = require("fs");
-            const config = JSON.parse(
-              fs.readFileSync(".github/labels.json", "utf8")
-            );
-            const { owner, repo } = context.repo;
+    - name: Synchronize labels
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const fs = require("fs");
+          const config = JSON.parse(
+            fs.readFileSync(".github/labels.json", "utf8")
+          );
+          const { owner, repo } = context.repo;
 
-            // Fetch all repository labels
-            const existing = await github.paginate(
-              github.rest.issues.listLabelsForRepo,
-              { owner, repo, per_page: 100 }
-            );
+          // Fetch all repository labels
+          const existing = await github.paginate(
+            github.rest.issues.listLabelsForRepo,
+            { owner, repo, per_page: 100 }
+          );
 
-            const existingMap = new Map(
-              existing.map(label => [label.name, label])
-            );
+          const existingMap = new Map(
+            existing.map(label => [label.name, label])
+          );
 
-            // Create or update labels
-            for (const [name, data] of Object.entries(config.labels)) {
-              if (!existingMap.has(name)) {
-                core.info(`Creating label '${name}'`);
+          // Create or update labels
+          for (const [name, data] of Object.entries(config.labels)) {
+            if (!existingMap.has(name)) {
+              core.info(`Creating label '${name}'`);
 
-                await github.rest.issues.createLabel({
-                  owner,
-                  repo,
-                  name,
-                  color: data.color,
-                  description: data.description
-                });
-
-                continue;
-              }
-
-              const current = existingMap.get(name);
-
-              if (
-                current.color.toLowerCase() !== data.color.toLowerCase() ||
-                current.description !== data.description
-              ) {
-                core.info(`Updating label '${name}'`);
-
-                await github.rest.issues.updateLabel({
-                  owner,
-                  repo,
-                  name,
-                  new_name: name,
-                  color: data.color,
-                  description: data.description
-                });
-              }
-            }
-
-      - name: Apply labels
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const fs = require("fs");
-            const config = JSON.parse(
-              fs.readFileSync(".github/labels.json", "utf8")
-            );
-
-            const { owner, repo } = context.repo;
-            const pull_number = context.payload.pull_request.number;
-
-            const files = await github.paginate(
-              github.rest.pulls.listFiles,
-              {
+              await github.rest.issues.createLabel({
                 owner,
                 repo,
-                pull_number,
-                per_page: 100
-              }
-            );
+                name,
+                color: data.color,
+                description: data.description
+              });
 
-            const changed = files.map(f => f.filename);
-
-            function globToRegex(glob) {
-              return new RegExp(
-                "^" +
-                glob
-                  .replace(/\./g, "\\.")
-                  .replace(/\*\*/g, ".*")
-                  .replace(/\*/g, "[^/]*") +
-                "$"
-              );
+              continue;
             }
 
-            const labels = [];
+            const current = existingMap.get(name);
 
-            for (const [name, data] of Object.entries(config.labels)) {
-              if (!data.paths || data.paths.length === 0)
-                continue;
+            if (
+              current.color.toLowerCase() !== data.color.toLowerCase() ||
+              current.description !== data.description
+            ) {
+              core.info(`Updating label '${name}'`);
 
-              for (const pattern of data.paths) {
-                const regex = globToRegex(pattern);
-
-                if (changed.some(file => regex.test(file))) {
-                  labels.push(name);
-                  break;
-                }
-              }
-            }
-
-            if (labels.length > 0) {
-              await github.rest.issues.addLabels({
+              await github.rest.issues.updateLabel({
                 owner,
                 repo,
-                issue_number: pull_number,
-                labels
+                name,
+                new_name: name,
+                color: data.color,
+                description: data.description
               });
             }
+          }
+
+    - name: Apply labels
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const fs = require("fs");
+          const config = JSON.parse(
+            fs.readFileSync(".github/labels.json", "utf8")
+          );
+
+          const { owner, repo } = context.repo;
+          const pull_number = context.payload.pull_request.number;
+
+          const files = await github.paginate(
+            github.rest.pulls.listFiles,
+            {
+              owner,
+              repo,
+              pull_number,
+              per_page: 100
+            }
+          );
+
+          const changed = files.map(f => f.filename);
+
+          function globToRegex(glob) {
+            return new RegExp(
+              "^" +
+              glob
+                .replace(/\./g, "\\.")
+                .replace(/\*\*/g, ".*")
+                .replace(/\*/g, "[^/]*") +
+              "$"
+            );
+          }
+
+          const labels = [];
+
+          for (const [name, data] of Object.entries(config.labels)) {
+            if (!data.paths || data.paths.length === 0)
+              continue;
+
+            for (const pattern of data.paths) {
+              const regex = globToRegex(pattern);
+
+              if (changed.some(file => regex.test(file))) {
+                labels.push(name);
+                break;
+              }
+            }
+          }
+
+          if (labels.length > 0) {
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pull_number,
+              labels
+            });
+          }

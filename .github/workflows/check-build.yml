@@ -3,11 +3,32 @@ name: Check Build
 on:
   pull_request:
     types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
+    - opened
+    - synchronize
+    - reopened
+    - ready_for_review
+    paths-ignore:
+    - '.github/**'
+    - '.vscode/**'
+    - '.gitignore'
+    - '*.md'
+    - 'CONTRIBUTORS/**'
+    - 'docs/**'
+    - 'examples/**'
+    - 'imgs/**'
+    - '.envrc'
   push:
+    paths-ignore:
+    - '.github/**'
+    - '.vscode/**'
+    - '.gitignore'
+    - '*.md'
+    - 'CONTRIBUTORS/**'
+    - 'docs/**'
+    - 'examples/**'
+    - 'imgs/**'
+    - '.envrc'
+
 permissions:
   contents: read
 
@@ -17,28 +38,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+    - name: Checkout repository
+      uses: actions/checkout@v7
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+    - uses: cachix/install-nix-action@v31
 
-      - name: Install LLVM
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg lsb-release software-properties-common
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-22 main"
-          sudo apt-get update
-          sudo apt-get install -y llvm-22 llvm-22-dev libpolly-22-dev
-      - name: Configure LLVM
-        run: |
-          echo "LLVM_SYS_221_PREFIX=/usr/lib/llvm-22" >> $GITHUB_ENV
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
+    - name: Enable flakes
+      run: |
+        mkdir -p ~/.config/nix
+        echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
-      - name: Check project
-        run: cargo check --locked --verbose
+    - name: Setup Nix cache
+      uses: DeterminateSystems/magic-nix-cache-action@v14
 
-      - name: Build project
-        run: cargo build --locked --verbose
+    - name: Cache Cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        cache-on-failure: true
+        cache-provider: github
+        cache-ttl: 14
+        shared-key: "juno-rust-cache"
+    - name: Check project
+      run: |
+        nix develop --command cargo check --locked --verbose
+
+    - name: Build project
+      run: |
+        nix develop --command cargo build --locked --verbose

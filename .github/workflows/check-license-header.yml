@@ -1,0 +1,55 @@
+name: Check License Headers
+
+on:
+    pull_request:
+        types:
+          - opened
+          - synchronize
+          - reopened
+          - ready_for_review
+    push:
+        paths:
+          - '**.rs'
+
+permissions:
+    contents: read
+
+jobs:
+    license:
+        name: Check license headers
+        runs-on: ubuntu-latest
+
+        steps:
+          - uses: actions/checkout@v7
+
+          - name: Check MPL headers
+            run: |
+                python3 <<'EOF'
+                import pathlib
+                import sys
+
+                HEADER = """//This Source Code Form is subject to the terms of the Mozilla Public
+                //License, v. 2.0. If a copy of the MPL was not distributed with this
+                //file, You can obtain one at https://mozilla.org/MPL/2.0/.
+                """
+
+                failed = []
+
+                for path in pathlib.Path(".").rglob("*.rs"):
+                    # Ignore target directory
+                    if "target" in path.parts:
+                        continue
+
+                    content = path.read_text(encoding="utf-8")
+
+                    if not content.startswith(HEADER):
+                        failed.append(str(path))
+
+                if failed:
+                    print("Missing MPL header:")
+                    for file in failed:
+                        print(f"  - {file}")
+                    sys.exit(1)
+
+                print("All Rust files contain the MPL header.")
+                EOF
