@@ -7,9 +7,13 @@ on:
           - synchronize
           - reopened
           - ready_for_review
+        paths:
+          - '**.rs'
     push:
         paths:
           - '**.rs'
+        branches:
+          - 'master'
 
 permissions:
     contents: read

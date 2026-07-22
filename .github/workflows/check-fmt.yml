@@ -12,6 +12,8 @@ on:
   push:
     paths:
     - '**.rs'
+    branches:
+    - 'master'
 
 permissions:
   contents: read
