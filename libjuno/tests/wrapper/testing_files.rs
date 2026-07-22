@@ -1,6 +1,4 @@
-
 use crate::wrapper::test_file_utils::test_file;
-
 
 const TEST0_JUNO: &str = include_str!("test_files/test0.juno");
 const TEST_ARITHMETIC_JUNO: &str = include_str!("test_files/test_arithmetic.juno");
